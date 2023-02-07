@@ -1,0 +1,26 @@
+body{
+    margin:0;
+}
+
+.base-navigation-menu{
+position:absolute;
+left:0;
+right:0;
+top:0;
+height:100px;
+background-color: blue;    
+
+display:flex;
+align-items:center;
+
+}
+
+.base-navigation-link{
+    padding-left:5px;
+    padding-right:5px;
+}
+
+.page-content{
+background-color: green;   
+margin-top:100px;
+}

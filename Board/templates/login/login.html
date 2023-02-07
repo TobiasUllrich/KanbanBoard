@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<script>
+  let username = '{{ request.user.username }}';
+  let token = '{{ csrf_token }}';
+</script>
+<script src="{% static 'js/login.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+
+
+<h1>Login ist working</h1>
+
+
+<!-- User registered? -->
+{% if request.user.is_authenticated %}
+<!-- Form -->
+<form onsubmit="sendMessage(); return false" method="post">
+  {% csrf_token %}
+</form>
+{% else %}
+{% endif %}
+<!-- User registered? -->
+
+
+{% endblock %}
+

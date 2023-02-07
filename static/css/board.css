@@ -1,0 +1,41 @@
+.board-header{
+height:50px;
+}
+
+.board-container{
+    display:flex;
+}
+.drag-area{
+    width:25vw;
+}
+
+#todo{
+    background-color:red;
+    height:calc(100vh - 100px - 50px);   
+}
+#inprogress{
+    background-color:yellow;
+    height:calc(100vh - 100px - 50px);     
+}
+#awaitingfeedback{
+    background-color:blue;   
+    height:calc(100vh - 100px - 50px);  
+}
+#done{
+    background-color: lightsalmon;   
+    height:calc(100vh - 100px - 50px);  
+}
+
+#testbox{
+    width:100px;
+    height:100px;
+    background-color:orange;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+
+@media (min-width:280px) and (max-width:350px) {
+
+
+}
