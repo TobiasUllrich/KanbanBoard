@@ -43,8 +43,8 @@ class BoardViewSet(viewsets.ModelViewSet):
         print ('Board_to_User ',request.data.get('board_to_user'))
         getUserInstance=User.objects.get(id=request.data.get('board_user'))
         print ('getUserInstance ',getUserInstance)
-        for item in request.data.get('board_to_user'):
-         print(item)
+        #for item in request.data.get('board_to_user'):
+        # print(item)
 
         newBoard = Board.objects.create(board_name= request.data.get('board_name'), #POST or data; If nothing in the variable, the empty strings will be used
                                        board_user= getUserInstance, #ForeignKey; User-Instance needed

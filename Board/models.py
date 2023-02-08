@@ -4,16 +4,16 @@ from datetime import date
 
 # Create your models here.
 
-# [1.] Model User already exists (username,first_name,last_name,email,password)
+# [1.] Model User already exists (id, username,first_name,last_name,email,password)
 
-# [2.] Board (board_name,board_user,board_created_at,board_to_user)
+# [2.] Board (id, board_name,board_user,board_created_at,board_to_user)
 class Board(models.Model):
     board_name = models.CharField(max_length=500)
     board_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_created_board',null=True) 
     board_created_at = models.DateField(default=date.today)  
     board_to_user = models.ManyToManyField(to=settings.AUTH_USER_MODEL, through='BoardToUser')
 
-# [3.] Tickets (ticket_description,ticket_title,ticket_duedate,ticket_prio,ticket_category,ticket_created_at,ticket_to_user,ticket_board)
+# [3.] Tickets (id, ticket_description,ticket_title,ticket_duedate,ticket_prio,ticket_category,ticket_created_at,ticket_to_user,ticket_board)
 class Ticket(models.Model):
     ticket_description = models.CharField(max_length=500)
     ticket_title = models.CharField(max_length=500)
