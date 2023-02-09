@@ -1,28 +1,29 @@
 from rest_framework import serializers #Um den Serializer des REST-Frameworks benutzen zu können
 from django.contrib.auth.models import User #Model User wird importiert
-from .models import Board, Ticket #Models Board & Tickets werden importiert
+from .models import List, Ticket #Models List & Ticket werden importiert
 
-#User-Serializer (defines the API)
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+#Users-Serializer (defines the API)
+class UsersSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
         fields = ['id','username','first_name','last_name','email','password']
 
 
-#Board-Serializer (defines the API)
-class BoardSerializer(serializers.HyperlinkedModelSerializer):
-    board_to_user = UserSerializer(many=True) #ManyToMany-Field which contains an Array of Users
-    board_user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all()) #ForeignKey-Field which contains a single User
+#Lists-Serializer (defines the API)
+class ListsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        model = Board
-        fields = ['id','board_name','board_user','board_created_at','board_to_user']
+        model = List
+        fields = ['id','list_name']
 
 
-#Ticket-Serializer (defines the API)
-class TicketSerializer(serializers.HyperlinkedModelSerializer):
-
+#Tickets-Serializer (defines the API)
+class TicketsSerializer(serializers.HyperlinkedModelSerializer):
+    ticket_list = serializers.PrimaryKeyRelatedField(queryset=List.objects.all()) #ForeignKey-Field which contains a single List
+    ticket_to_user = UsersSerializer(many=True) #ManyToMany-Field which contains an Array of Users
+    
     class Meta:
         model = Ticket
-        fields = ['id','ticket_description','ticket_title','ticket_duedate','ticket_prio','ticket_category','ticket_created_at','ticket_to_user','ticket_board']
+        fields = ['id','ticket_description','ticket_title','ticket_duedate','ticket_prio','ticket_created_at','ticket_list','ticket_to_user']
+                                                                                                                       

@@ -18,18 +18,19 @@ from django.contrib import admin
 from django.urls import path, include #include for Django-REST-Framework
 from rest_framework import routers #for routing with Django-REST-Framework
 from Board.views import board_view, register_view, login_view, logout_view
-from Board.views import UserViewSet, BoardViewSet, TicketViewSet #viewset is in our Board-App
+from Board.views import UserViewSet, ListViewSet, TicketViewSet #viewset is in our Board-App
 
 # To register a View under a URL
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet) #To make the UserViewSet accessible under the URL http://127.0.0.1:8000/users/
-router.register(r'boards', BoardViewSet) #To make the BoardViewSet accessible under the URL http://127.0.0.1:8000/boards/
+router.register(r'lists', ListViewSet) #To make the BoardViewSet accessible under the URL http://127.0.0.1:8000/lists/
 router.register(r'tickets', TicketViewSet) #To make the TicketViewSet accessible under the URL http://127.0.0.1:8000/tickets/
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', board_view),
-    path('board/', board_view),
+    #path('board/', board_view),
     path('register/', register_view),
     path('login/', login_view),
     path('logout/', logout_view),

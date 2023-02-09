@@ -6,31 +6,21 @@ from datetime import date
 
 # [1.] Model User already exists (id, username,first_name,last_name,email,password)
 
-# [2.] Board (id, board_name,board_user,board_created_at,board_to_user)
-class Board(models.Model):
-    board_name = models.CharField(max_length=500)
-    board_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_created_board',null=True) 
-    board_created_at = models.DateField(default=date.today)  
-    board_to_user = models.ManyToManyField(to=settings.AUTH_USER_MODEL, through='BoardToUser')
+# [2.] Lists (id, list_name)
+class List(models.Model):
+    list_name = models.CharField(max_length=500)
 
-# [3.] Tickets (id, ticket_description,ticket_title,ticket_duedate,ticket_prio,ticket_category,ticket_created_at,ticket_to_user,ticket_board)
+# [3.] Tickets (id, ticket_description,ticket_title,ticket_duedate,ticket_prio,ticket_created_at,ticket_list,ticket_to_user)
 class Ticket(models.Model):
     ticket_description = models.CharField(max_length=500)
     ticket_title = models.CharField(max_length=500)
     ticket_duedate = models.DateField(default=date.today)      
     ticket_prio = models.CharField(max_length=500)
-    ticket_category = models.CharField(max_length=500)
     ticket_created_at = models.DateField(default=date.today)  
+    ticket_list = models.ForeignKey(to=List, on_delete=models.CASCADE, related_name='ticket_in_list',null=True)  #ForeignKey can be accessed through 'Tickets.ticket_in_list'
     ticket_to_user = models.ManyToManyField(to=settings.AUTH_USER_MODEL, through='TicketToUser')
-    ticket_board = models.ForeignKey(to=Board, on_delete=models.CASCADE, related_name='ticket_in_board',null=True) 
   
-# [4.] Intermediate Model between Board and User
-class BoardToUser(models.Model):
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    b2u_created_at = models.DateField(default=date.today)
-
-# [5.] Intermediate Model between Ticket and User
+# [4.] Intermediate Model between Ticket and User
 class TicketToUser(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

@@ -16,6 +16,19 @@
  <!-- ToDos --> 
 <div id="todo" class="drag-area" ondrop="moveTo('todo')" ondragover="allowDrop(event)">
   <div id="testbox" draggable="true" ondragstart="startDragging('1')">blublulbulbu</div>
+
+  <!-- ZUM TESTEN --> 
+  <div id="xxx">
+    {% for ticket in tickets reversed %}
+    <div class="xxx">
+      <span class="xxx">[{{ ticket.ticket_description }}]</span>
+      <span> {{ ticket.ticket_title }}: </span> 
+      <i> {{ ticket.ticket_created_at }} </i>
+    </div>
+    {% endfor %}
+  </div>
+  <!-- ZUM TESTEN --> 
+
 </div>
  <!-- InProgress --> 
 <div id="inprogress" class="drag-area" ondrop="moveTo('inprogress')" ondragover="allowDrop(event)">
