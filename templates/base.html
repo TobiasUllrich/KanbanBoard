@@ -5,6 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KanbanBoard</title>
+    
+        <!-- Material Lite Design -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
@@ -12,14 +18,22 @@
 
 </head>
 <body>
-    
+    <div class="base-header">
+    <div>
+      {% if request.user.is_authenticated %}
+        <span><b>You are logged in as {{request.user.username}}</b></span>
+      {% else %}
+        <span><b>Welcome to KanbanBoard. Please login.</b></span>
+      {% endif %}
+    </div>
+
     <nav class="base-navigation-menu">
         <a class="base-navigation-link" href="/board/">Board</a>
         <a class="base-navigation-link" href="/register/">Register</a>
         <a class="base-navigation-link" href="/login/">Login</a>
         <a class="base-navigation-link" href="/logout/">Logout</a>
     </nav>
-
+   </div>
 
     <div class="page-content">
         {% block content %}

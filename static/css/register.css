@@ -1,5 +1,69 @@
+.register-center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 500px;
+}
+
+p {
+    text-align:center;
+}
+
+.register-button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+input {
+    margin-bottom: 15px;
+}
+
+.spinner {
+    margin-top: 15px;
+}
+
+.d-none {
+    display: none !important;
+}
+
+.error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+}
+
+img {
+    margin-right: 10px;
+}
+
+.redtext {
+    color: red;
+}
+
+.greentext {
+    color: green;
+}
+
 
 @media (min-width:280px) and (max-width:350px) {
 
-
+    .register-container {
+        width: 80vw;
+    }
 }

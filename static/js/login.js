@@ -20,8 +20,8 @@ async function login() {
  */
 function getDataFromMessageForm() {
   let fd = new FormData();
-  fd.append('username', username.value);
-  fd.append('password', password.value);
+  fd.append('username', document.getElementById('username').value);
+  fd.append('password', document.getElementById('password').value);
   fd.append('csrfmiddlewaretoken', token);
   return fd;
 }

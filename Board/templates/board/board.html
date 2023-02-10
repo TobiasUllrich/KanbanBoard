@@ -10,7 +10,12 @@
 <link rel="stylesheet" href="{% static 'css/board.css' %}">
 
 
-<div class="board-header">Board ist working</div>
+<div class="board-header">
+  <div class="board-lists">To do</div>
+  <div class="board-lists">In progress</div>
+  <div class="board-lists">Awaiting feedback</div>
+  <div class="board-lists">Done</div>
+</div>
 
 <div class="board-container">
  <!-- ToDos --> 
@@ -19,11 +24,11 @@
 
   <!-- ZUM TESTEN --> 
   <div id="xxx">
-    {% for ticket in tickets reversed %}
+    {% for todo in toDos reversed %}
     <div class="xxx">
-      <span class="xxx">[{{ ticket.ticket_description }}]</span>
-      <span> {{ ticket.ticket_title }}: </span> 
-      <i> {{ ticket.ticket_created_at }} </i>
+      <span class="xxx">[{{ todo.ticket_description }}]</span>
+      <span> {{ todo.ticket_title }}: </span> 
+      <i> {{ todo.ticket_created_at }} </i>
     </div>
     {% endfor %}
   </div>

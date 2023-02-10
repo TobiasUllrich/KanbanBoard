@@ -2,17 +2,20 @@ body{
     margin:0;
 }
 
-.base-navigation-menu{
-position:absolute;
-left:0;
-right:0;
-top:0;
-height:100px;
-background-color: blue;    
+.base-header{
+    position:absolute;
+    left:0;
+    right:0;
+    top:0;
+    height:100px;
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
 
-display:flex;
-align-items:center;
+}
 
+span{
+    color:rgb(255,64,129) !important;
 }
 
 .base-navigation-link{
@@ -21,6 +24,18 @@ align-items:center;
 }
 
 .page-content{
-background-color: green;   
 margin-top:100px;
+}
+
+@media (min-width:280px) and (max-width:600px) {
+
+    .base-header {
+        flex-direction:column;
+        justify-content:center;
+        text-align:center;
+    }
+
+    .base-navigation-menu{
+        margin-top:10px;
+    }
 }

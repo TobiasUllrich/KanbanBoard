@@ -10,18 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/logout.css' %}">
     
     
-    <h1>Logout ist working</h1>
+    <h1>{{ textforuser }}</h1>
     
-    
-    <!-- User registered? -->
-    {% if request.user.is_authenticated %}
-    <!-- Form -->
-    <form onsubmit="sendMessage(); return false" method="post">
-      {% csrf_token %}
-    </form>
-    {% else %}
-    {% endif %}
-    <!-- User registered? -->
-    
-    
+  
     {% endblock %}
