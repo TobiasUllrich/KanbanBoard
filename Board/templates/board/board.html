@@ -10,100 +10,152 @@
 <link rel="stylesheet" href="{% static 'css/board.css' %}">
 
 <div class="board-header">
+  <!-- Create Tickets in List ToDos --> 
   <div class="board-lists">
     <span class="board-list-title">To do</span>
-  <!-- Button -->
-  <button class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+  <button onclick="createTicket(1)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
    <i class="material-icons">add</i>
   </button>
   </div>
+  <!-- Create Tickets in List ToDos -->
+
+  <!-- Create Tickets in List InProgress --> 
   <div class="board-lists">
     <span class="board-list-title">In progress</span>
+    <button onclick="createTicket(2)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+      <i class="material-icons">add</i>
+     </button>
   </div>
+  <!-- Create Tickets in List InProgress -->
+
+  <!-- Create Tickets in List AwaitingFeedback -->
   <div class="board-lists">
     <span class="board-list-title">Awaiting feedback</span>
+    <button onclick="createTicket(3)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+      <i class="material-icons">add</i>
+     </button>
   </div>
+  <!-- Create Tickets in List AwaitingFeedback -->
+
+  <!-- Create Tickets in List Done -->
   <div class="board-lists">
     <span class="board-list-title">Done</span>
+    <button onclick="createTicket(4)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+      <i class="material-icons">add</i>
+     </button>
   </div>
+  <!-- Create Tickets in List Done -->
 </div>
 
 
 <div class="board-container">
- <!-- ToDos --> 
+ 
 <div id="todo" class="drag-area" ondrop="moveTo(1,'todo')" ondragover="allowDrop(event)">
-  
-    <!-- ZUM TESTEN --> 
+    <!-- Tickets in List ToDos --> 
     {% for toDo in toDos reversed %}
     <div class="ticket" id='{{toDo.id}}' draggable="true" ondragstart="startDragging('{{ toDo.id}}')">
-      <span>Title: <span style="color:black">{{ toDo.ticket_title }}</span></span>
-      <span>Description: {{ toDo.ticket_description }}</span> 
-      <span>Created at: {{ toDo.ticket_created_at }} </span>
-      <span>Due date: {{ toDo.ticket_duedate }} </span>
-      <span>Priority: {{ toDo.ticket_prio }} </span>
-      <span>Users: {{ toDo.ticket_to_user }} </span>
+      <span>Title: <span id="title{{toDo.id}}" class="colortext">{{ toDo.ticket_title }}</span></span>
+      <span>Description: <span id="description{{toDo.id}}" class="colortext">{{ toDo.ticket_description }}</span></span> 
+      <span>Created at: <span id="createdat{{toDo.id}}" class="colortext">{{ toDo.ticket_created_at }}</span></span>
+      <span>Due date: <span id="duedate{{toDo.id}}" class="colortext">{{ toDo.ticket_duedate }}</span></span>
+      <span>Priority: <span id="prio{{toDo.id}}" class="colortext">{{ toDo.ticket_prio }}</span></span>
+      <span>Users: 
+        <span id="tickettouser{{toDo.id}}" class="colortext">
+        {% for user in toDo.ticket_to_user.all %}
+        {{ user.username }}, 
+        {% endfor %}
+        </span>
+      </span>
+      <div class="ticket-edit" onclick="editTicket('{{ toDo.id}}',1)"><img  src="{% static 'img/edit16.png' %}"></div>
+      <div class="ticket-delete" onclick="deleteTicket('{{ toDo.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
     {% endfor %}
-  <!-- ZUM TESTEN --> 
-  
+    <!-- Tickets in List ToDos --> 
 </div>
- <!-- InProgress --> 
+
 <div id="inprogress" class="drag-area" ondrop="moveTo(2,'inprogress')" ondragover="allowDrop(event)">
-    <!-- ZUM TESTEN --> 
+    <!-- Tickets in List InProgress --> 
     {% for inPro in inProgress reversed %}
     <div class="ticket" id='{{inPro.id}}' draggable="true" ondragstart="startDragging('{{inPro.id}}')">
-      <span>Title: <span style="color:black">{{ inPro.ticket_title }}</span></span>
-      <span>Description: {{ inPro.ticket_description }}</span> 
-      <span>Created at: {{ inPro.ticket_created_at }} </span>
-      <span>Due date: {{ inPro.ticket_duedate }} </span>
-      <span>Priority: {{ inPro.ticket_prio }} </span>
-      <span>Users: {{ inPro.ticket_to_user }} </span>
+      <span>Title: <span id="title{{inPro.id}}" class="colortext">{{ inPro.ticket_title }}</span></span>
+      <span>Description: <span id="description{{inPro.id}}" class="colortext">{{ inPro.ticket_description }}</span></span> 
+      <span>Created at: <span id="createdat{{inPro.id}}" class="colortext">{{ inPro.ticket_created_at }}</span></span>
+      <span>Due date: <span id="duedate{{inPro.id}}" class="colortext">{{ inPro.ticket_duedate }}</span></span>
+      <span>Priority: <span id="prio{{inPro.id}}" class="colortext">{{ inPro.ticket_prio }}</span></span>
+      <span>Users: <span id="tickettouser{{inPro.id}}" class="colortext">{{ inPro.ticket_to_user }}</span></span>
+      <div class="ticket-edit" onclick="editTicket('{{ inPro.id}}',2)"><img  src="{% static 'img/edit16.png' %}"></div>
+      <div class="ticket-delete" onclick="deleteTicket('{{ inPro.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
     {% endfor %}
-  <!-- ZUM TESTEN --> 
+    <!-- Tickets in List InProgress --> 
 </div>
-<!-- AwaitingFeedback --> 
+
 <div id="awaitingfeedback" class="drag-area" ondrop="moveTo(3,'awaitingfeedback')" ondragover="allowDrop(event)">
-    <!-- ZUM TESTEN --> 
+    <!-- Tickets in List AwaitingFeedback --> 
     {% for awFeed in awaitingFeedback reversed %}
     <div class="ticket" id='{{awFeed.id}}' draggable="true" ondragstart="startDragging('{{awFeed.id}}')">
-      <span>Title: <span style="color:black">{{ awFeed.ticket_title }}</span></span>
-      <span>Description: {{ awFeed.ticket_description }}</span> 
-      <span>Created at: {{ awFeed.ticket_created_at }} </span>
-      <span>Due date: {{ awFeed.ticket_duedate }} </span>
-      <span>Priority: {{ awFeed.ticket_prio }} </span>
-      <span>Users: {{ awFeed.ticket_to_user }} </span>
+      <span>Title: <span id="title{{awFeed.id}}" class="colortext">{{ awFeed.ticket_title }}</span></span>
+      <span>Description: <span id="description{{awFeed.id}}" class="colortext">{{ awFeed.ticket_description }}</span> 
+      <span>Created at: <span id="createdat{{awFeed.id}}" class="colortext">{{ awFeed.ticket_created_at }}</span></span>
+      <span>Due date: <span id="duedate{{awFeed.id}}" class="colortext">{{ awFeed.ticket_duedate }}</span></span>
+      <span>Priority: <span id="prio{{awFeed.id}}" class="colortext">{{ awFeed.ticket_prio }}</span></span>
+      <span>Users: <span id="tickettouser{{awFeed.id}}" class="colortext">{{ awFeed.ticket_to_user }}</span></span>
+      <div class="ticket-edit" onclick="editTicket('{{ awFeed.id}}',3)"><img  src="{% static 'img/edit16.png' %}"></div>
+      <div class="ticket-delete" onclick="deleteTicket('{{ awFeed.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
     {% endfor %}
-  <!-- ZUM TESTEN --> 
+    <!-- Tickets in List AwaitingFeedback --> 
 </div>
-<!-- Done --> 
+
 <div id="done" class="drag-area" ondrop="moveTo(4,'done')" ondragover="allowDrop(event)">
-    <!-- ZUM TESTEN --> 
+    <!-- Tickets in List Done --> 
     {% for done in dones reversed %}
     <div class="ticket" id='{{done.id}}' draggable="true" ondragstart="startDragging('{{ done.id }}')">
-      <span>Title: <span style="color:black">{{ done.ticket_title }}</span></span>
-      <span>Description: {{ done.ticket_description }}</span> 
-      <span>Created at: {{ done.ticket_created_at }} </span>
-      <span>Due date: {{ done.ticket_duedate }} </span>
-      <span>Priority: {{ done.ticket_prio }} </span>
-      <span>Users: {{ done.ticket_to_user }} </span>
+      <span>Title: <span id="title{{done.id}}" class="colortext">{{ done.ticket_title }}</span></span>
+      <span>Description: <span id="description{{done.id}}" class="colortext">{{ done.ticket_description }}</span></span>
+      <span>Created at: <span id="createdat{{done.id}}" class="colortext">{{ done.ticket_created_at }}</span></span>
+      <span>Due date: <span id="duedate{{done.id}}" class="colortext">{{ done.ticket_duedate }}</span></span>
+      <span>Priority: <span id="prio{{done.id}}" class="colortext">{{ done.ticket_prio }}</span></span>
+      <span>Users: <span id="tickettouser{{done.id}}" class="colortext">{{ done.ticket_to_user }}</span></span>
+      <div class="ticket-edit" onclick="editTicket('{{ done.id}}',4)"><img  src="{% static 'img/edit16.png' %}"></div>
+      <div class="ticket-delete" onclick="deleteTicket('{{ done.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
     {% endfor %}
-  <!-- ZUM TESTEN --> 
+   <!-- Tickets in List Done --> 
+</div>
 </div>
 
-
-<!-- User registered? -->
-{% if request.user.is_authenticated %}
-<!-- Form -->
-<form onsubmit="sendMessage(); return false" method="post">
-  {% csrf_token %}
-</form>
-{% else %}
-{% endif %}
-<!-- User registered? -->
-
+ <!-- Invisible Pop-Up to update Ticket --> 
+<div id="board-popup" class="d-none">
+<div class="board-popup-center" id='1111'>
+  <div class="board-popup-ticket">
+  <div class="board-popup-ticket-close" onclick="closeTicket()"><img  src="{% static 'img/close48.png' %}"></div>  
+  <span>Title:</span> <input id="ticket_title" type="text">
+  <span>Description:</span> <input id="ticket_description" type="text">
+  <span>Created at:</span> <input id="ticket_created_at" type="date">
+  <span>Due date:</span> <input id="ticket_duedate" type="date">
+  <span>Priority:</span> 
+  <select id="ticket_prio">
+    <option value="1">Low</option>
+    <option value="2">Medium</option>
+    <option value="3">High</option>
+  </select>
+  <span>Users:</span>
+  <select id="ticket_to_user">
+    <option value="1">x</option>
+    <option value="2">y</option>
+    <option value="3">z</option>
+  </select>
+  <div class="board-popup-ticket-delete-save">
+    <div onclick="saveTicket('1111')"><img  src="{% static 'img/save48.png' %}"></div>
+    <div onclick="deleteTicket('1111')"><img  src="{% static 'img/delete48.png' %}"></div>
+  </div>
+  </div>
+<div id="invListId" class="d-none"></div>
+<div id="invTicketId" class="d-none"></div>    
+</div>
+</div>
+ <!-- Invisible Pop-Up to update Ticket --> 
 
 {% endblock %}
     

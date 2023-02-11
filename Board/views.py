@@ -6,7 +6,7 @@ from rest_framework import viewsets, permissions, authentication, exceptions #Um
 from .serializers import UsersSerializer, ListsSerializer, TicketsSerializer #Um den Serializer aus serializers.py benutzen zu können
 from django.http import HttpResponse #Um das HttpResponseObjekt nutzen zu können
 from django.contrib.auth.models import User #Model User wird importiert
-from .models import List, Ticket #Models Board & Tickets werden importiert
+from .models import List, Ticket, TicketToUser #Models Board & Tickets werden importiert
 from django.http import HttpResponseRedirect, JsonResponse #Zum Weiterleiten
 
 
@@ -74,9 +74,11 @@ class TicketViewSet(viewsets.ModelViewSet):
     
     def list(self, request): #GET
      print('GET SOLLTE PERFORMED WERDEN ')
-     print(Ticket.objects.all())
      toDos = Ticket.objects.filter(ticket_list=1)
      inProgress = Ticket.objects.filter(ticket_list=2)
+     for inPro in inProgress:
+      print(inPro.ticket_to_user.all())
+      
      awaitingFeedback = Ticket.objects.filter(ticket_list=3)
      dones = Ticket.objects.filter(ticket_list=4)
     #  print(serializers.serialize('json', [dones [0], ]))
@@ -112,11 +114,9 @@ class ListViewSet(viewsets.ModelViewSet):
     permission_classes = [] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
 
     def create(self, request): #POST
-        newList = List.objects.create(list_name= request.data.get('list_name'),
-                                      )
+        newList = List.objects.create(list_name= request.data.get('list_name'),)
         serialized_obj = serializers.serialize('json', [newList, ]) # We have to transform our created object into JSON via a serializer 
         return HttpResponse(serialized_obj, content_type='application/json')
-
 
 
 def register_view(request):
@@ -129,19 +129,15 @@ def register_view(request):
    createduser = User.objects.create_user(username=username,password=password1) #User is created -> Error if user exists
    createduser = User.objects.filter(username=createduser) #Filters the created user -> Error if user exists
    return JsonResponse({"Registered": True}) #returns JSON, without key
-
  return render(request, 'register/register.html') #GET-Request
 
 
 def login_view(request):
     """
      This is a view to login the user if not logged in, otherwise redirects to Board-HTML
-    """
-    
+    """   
     if request.method == 'POST':
        user = authenticate(username=request.POST.get('username'), password=request.POST.get('password')) #Authentification of User possible?
-       print('XXXX ',request.POST.get('username'), request.POST.get('password'))
-       print('XXXX ', request.user.is_authenticated)
        if user != 'None': 
            #User authenticated/registered (username & password are correct)
            login(request,user) #Logs in the User
@@ -149,10 +145,9 @@ def login_view(request):
        else: 
            #User not authenticated/registered (username or password is not correct)
            return JsonResponse({"LoggedIn": False, "RedirectTo": '/login/'})
-
     return render(request, 'login/login.html') #GET-Request
 
-   
+
 def logout_view(request):
  """
  This is a view to logout the user if logged in, otherwise redirects to Login-HTML

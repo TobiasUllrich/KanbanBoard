@@ -1,46 +1,108 @@
-//Beim Laden der Seite müssen die Tasks reingerendert werden!
+let currentDraggedElement; //Saves the currently dragged Element
+let parentElementofDraggedElement; //Saves the parent of the currently dragged Element
 
-// Soll speichern welches Element gerade gezogen wird über die Funktion ondragstart()!
-let currentDraggedElement;
-let parentElementofDraggedElement;
-
-
-// Von W3C übernommen: Erlaubt das Droppen von Elementen über div-Containern
+/**
+ * Allows dropping of Elements over div-containers
+ * @param {event} ev 
+ */
 function allowDrop(ev) {
   ev.preventDefault();
 }
 
-// Sobald man zu Ziehen anfängt wird diese Funktion ausgeführt und speichert die id der Box die gezogen wird
+/**
+ * When dragging starts: Saves the currently dragged Element and its parent in global variables
+ * @param {number} id of the dragged HTML-Element
+ */
 function startDragging(id){
   currentDraggedElement=document.getElementById(id);
-  console.log('Element mit der id: ',id,' wird gerade gezogen!');
+  //console.log('Element mit der id: ',id,' wird gerade gezogen!');
   parentElementofDraggedElement = currentDraggedElement.parentNode;
-  console.log('Wurzel ist Element mit id: ',parentElementofDraggedElement.id);
+  //console.log('Wurzel ist Element mit id: ',parentElementofDraggedElement.id);
 }
 
-// Sobald ich die Box über dem entsprechenden Container droppe bekommt die Box die Kategorie des Containers
+/**
+ * Dragged Element gets dropped on another Container and then gets added to this Container
+ * @param {number} newListId id of the other Container
+ * @param {number} idWhereCurrentDraggedElementIsDropped id of the other Container
+ */
 async function moveTo(newListId,idWhereCurrentDraggedElementIsDropped) {
   if (parentElementofDraggedElement.id !== idWhereCurrentDraggedElementIsDropped){
-  console.log('Von ',parentElementofDraggedElement.id,' zu ',idWhereCurrentDraggedElementIsDropped);
-  console.log('Ziel ist Element mit id: ',newListId);
-  //tasks[currentDraggedElement]['category']=category; == PUT-REQUEST
-  await changeList(currentDraggedElement.id,newListId); //PUT-REQUEST
+  //console.log('Von ',parentElementofDraggedElement.id,' zu ',idWhereCurrentDraggedElementIsDropped);
+  //console.log('Ziel ist Element mit id: ',newListId);
+
+  //PUT-REQUEST
+  await changeList(currentDraggedElement.id,newListId); 
+
   document.getElementById(idWhereCurrentDraggedElementIsDropped).innerHTML +=`
   <div class="ticket" id='${currentDraggedElement.id}' draggable="true" ondragstart="startDragging('${currentDraggedElement.id}')">
-  ${currentDraggedElement.innerHTML}
+   ${currentDraggedElement.innerHTML}
   </div>`;
   
   currentDraggedElement.remove();
-  console.log(document.getElementById(newListId));
+  //console.log(document.getElementById(newListId));
   }
-  //console.log('Array sieht jetzt so aus: ', tasks);
-  //JETZT Seite neu RENDERN bzw. den einzelnen TASK neu rendern
 }
 
 
+function editTicket(ticketId,listId){
+  document.getElementById('invTicketId').innerHTML=ticketId;
+  document.getElementById('invListId').innerHTML=listId;
 
+  document.getElementById('ticket_title').value=document.getElementById(`title${ticketId}`).innerHTML;
+  document.getElementById('ticket_description').value=document.getElementById(`description${ticketId}`).innerHTML;
+  document.getElementById('ticket_created_at').value=document.getElementById(`createdat${ticketId}`).innerHTML;
+  document.getElementById('ticket_duedate').value=document.getElementById(`duedate${ticketId}`).innerHTML;
+  //document.getElementById('ticket_prio').value=document.getElementById(`prio${ticketId}`).innerHTML;
+  selectListboxItemByText('ticket_prio', document.getElementById(`prio${ticketId}`).innerHTML);
+  document.getElementById('ticket_to_user').value=document.getElementById(`tickettouser${ticketId}`).innerHTML;
+  document.getElementById('board-popup').classList.add('d-flex');
+  console.log(`Ticket with id ${ticketId} & list ${listId} can be edited here`);
+}
 
+function deleteTicket(ticketId){
+  console.log(`Ticket with ${ticketId} can be deleted here`);
+  //DELETE-REQUEST
+}
 
+function createTicket(listId){
+  document.getElementById('invTicketId').innerHTML='';
+  document.getElementById('invListId').innerHTML=listId;
+  document.getElementById('board-popup').classList.add('d-flex');
+  console.log('New Ticket can be created here with ticket_list', listId);
+}
+
+function saveTicket(ticketId,listId){
+ //POST-REQUEST
+}
+
+function closeTicket(){
+  document.getElementById('board-popup').classList.remove('d-flex');
+}
+
+/**
+ * Closes the PopUp to edit or create a ticket
+ * @param {event} event 
+ */
+window.onclick = function(event) {
+   if(event.target.id == 'board-popup'){
+    document.getElementById('board-popup').classList.remove('d-flex');  
+  }
+}
+
+/**
+ * Searches a certain text in a listbox with a certain id
+ * @param {string} idOfListbox id of the listbox
+ * @param {string} text text we are searching for in the listbox
+ */
+function selectListboxItemByText(idOfListbox, text) {
+  var listbox = document.getElementById(idOfListbox);
+  for (let i = 0; i < listbox.options.length; i++) {
+    if (listbox.options[i].text === text) {
+      listbox.options[i].selected = true;
+      break;
+    }
+  }
+}
 
 
 
@@ -99,6 +161,10 @@ async function waitingForServerResponse(fd) {
     // headers: {
     //   "Authorization": "Bearer YOUR_ACCESS_TOKEN",
     //   "Content-Type": "application/json"
+    // }
+    //headers = {'Authorization': f'Token {token}'}
+    // headers: {
+    //   'Authorization': `Token ${token}`
     // }
   });
 

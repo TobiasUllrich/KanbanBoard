@@ -20,11 +20,9 @@ class Ticket(models.Model):
     ticket_created_at = models.DateField(default=date.today)  
     ticket_list = models.ForeignKey(to=List, on_delete=models.CASCADE, related_name='ticket_in_list',null=True)  #ForeignKey can be accessed through 'Tickets.ticket_in_list'
     ticket_to_user = models.ManyToManyField(to=User, through='TicketToUser' , related_name='ticket_to_user')
-  
+
 # [4.] Intermediate Model between Ticket and User
 class TicketToUser(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     t2u_created_at = models.DateField(default=date.today)
-
-

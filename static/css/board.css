@@ -17,7 +17,10 @@ margin-left:10px;
 
 .btn{
     margin:0;
-    width:auto;
+    height: 40px;
+    min-width: 40px;
+    width: 40px;
+    margin-right:5px;
 }
 
 .board-container{
@@ -37,6 +40,7 @@ margin-left:10px;
 }
 
 .ticket{
+    position:relative;
     display:flex;
     flex-direction:column;
     width:85%;
@@ -51,9 +55,90 @@ margin-left:10px;
     background: linear-gradient(225deg, rgba(255,64,129,1) 0%, rgba(242,137,236,1) 16%, rgba(255,255,255,1) 81%);
 }
 
+.ticket-edit{
+    position:absolute;
+    right:28px;
+    bottom:8px;
+    width:16px;
+}
+
+.ticket-delete{
+ position:absolute;
+ right:8px;
+ bottom:8px;
+ width:16px;
+}
+
 .ticket span{
     margin-left:5px;
 }
+
+.colortext{
+    color:black !important;
+}
+
+.d-none{
+    display:none;
+}
+.d-flex{
+    display:flex !important;
+}
+
+#board-popup{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.board-popup-ticket{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    border: 1px solid black;
+    border-radius:10px;
+    width:100%;
+    height:100%;
+    padding:10px;
+    background: rgb(250,0,232);
+    background: linear-gradient(225deg, rgba(255,64,129,1) 0%, rgba(242,137,236,1) 16%, rgba(255,255,255,1) 81%);
+}
+
+.board-popup-ticket img{
+    cursor: pointer
+  }
+
+.board-popup-center{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    width:85vw;
+    height:85vh;
+    
+}
+
+.board-popup-ticket-close{
+    /* position:absolute;
+    right:44px;
+    top:16px;
+    width:16px; */
+
+    display:flex;
+    justify-content:flex-end;
+    width:100%;
+}
+
+.board-popup-ticket-delete-save{
+    display:flex;
+    justify-content:space-between;
+    margin-top:30px;
+}
+
+
 
 @media (min-width:280px) and (max-width:350px) {
 
