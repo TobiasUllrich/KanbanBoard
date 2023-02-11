@@ -62,7 +62,7 @@
       <span>Users: 
         <span id="tickettouser{{toDo.id}}" class="colortext">
         {% for user in toDo.ticket_to_user.all %}
-        {{ user.username }}, 
+        {{ user.id }}, 
         {% endfor %}
         </span>
       </span>
@@ -82,7 +82,13 @@
       <span>Created at: <span id="createdat{{inPro.id}}" class="colortext">{{ inPro.ticket_created_at }}</span></span>
       <span>Due date: <span id="duedate{{inPro.id}}" class="colortext">{{ inPro.ticket_duedate }}</span></span>
       <span>Priority: <span id="prio{{inPro.id}}" class="colortext">{{ inPro.ticket_prio }}</span></span>
-      <span>Users: <span id="tickettouser{{inPro.id}}" class="colortext">{{ inPro.ticket_to_user }}</span></span>
+      <span>Users: 
+        <span id="tickettouser{{inPro.id}}" class="colortext">
+          {% for user in inPro.ticket_to_user.all %}
+          {{ user.id }}, 
+          {% endfor %}
+        </span>
+      </span>
       <div class="ticket-edit" onclick="editTicket('{{ inPro.id}}',2)"><img  src="{% static 'img/edit16.png' %}"></div>
       <div class="ticket-delete" onclick="deleteTicket('{{ inPro.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
@@ -99,7 +105,13 @@
       <span>Created at: <span id="createdat{{awFeed.id}}" class="colortext">{{ awFeed.ticket_created_at }}</span></span>
       <span>Due date: <span id="duedate{{awFeed.id}}" class="colortext">{{ awFeed.ticket_duedate }}</span></span>
       <span>Priority: <span id="prio{{awFeed.id}}" class="colortext">{{ awFeed.ticket_prio }}</span></span>
-      <span>Users: <span id="tickettouser{{awFeed.id}}" class="colortext">{{ awFeed.ticket_to_user }}</span></span>
+      <span>Users: 
+        <span id="tickettouser{{awFeed.id}}" class="colortext">
+          {% for user in awFeed.ticket_to_user.all %}
+          {{ user.id }}, 
+          {% endfor %}
+        </span>
+      </span>
       <div class="ticket-edit" onclick="editTicket('{{ awFeed.id}}',3)"><img  src="{% static 'img/edit16.png' %}"></div>
       <div class="ticket-delete" onclick="deleteTicket('{{ awFeed.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
@@ -116,7 +128,13 @@
       <span>Created at: <span id="createdat{{done.id}}" class="colortext">{{ done.ticket_created_at }}</span></span>
       <span>Due date: <span id="duedate{{done.id}}" class="colortext">{{ done.ticket_duedate }}</span></span>
       <span>Priority: <span id="prio{{done.id}}" class="colortext">{{ done.ticket_prio }}</span></span>
-      <span>Users: <span id="tickettouser{{done.id}}" class="colortext">{{ done.ticket_to_user }}</span></span>
+      <span>Users:
+        <span id="tickettouser{{done.id}}" class="colortext">
+          {% for user in done.ticket_to_user.all %}
+          {{ user.id }}, 
+          {% endfor %}
+        </span>
+      </span>
       <div class="ticket-edit" onclick="editTicket('{{ done.id}}',4)"><img  src="{% static 'img/edit16.png' %}"></div>
       <div class="ticket-delete" onclick="deleteTicket('{{ done.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
@@ -134,18 +152,31 @@
   <span>Description:</span> <input id="ticket_description" type="text">
   <span>Created at:</span> <input id="ticket_created_at" type="date">
   <span>Due date:</span> <input id="ticket_duedate" type="date">
+
   <span>Priority:</span> 
   <select id="ticket_prio">
     <option value="1">Low</option>
     <option value="2">Medium</option>
     <option value="3">High</option>
   </select>
+
   <span>Users:</span>
-  <select id="ticket_to_user">
-    <option value="1">x</option>
-    <option value="2">y</option>
-    <option value="3">z</option>
-  </select>
+  <ul id="ticket_to_user" class="demo-list-control mdl-list">
+    <!--User-List-Element-->
+    <li class="mdl-list__item">
+      <span class="mdl-list__item-primary-content">
+        <i class="material-icons  mdl-list__item-avatar">person</i>
+        Bryan Cranston
+      </span>
+      <span class="mdl-list__item-secondary-action">
+        <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-1">
+          <input type="checkbox" id="list-checkbox-1" class="mdl-checkbox__input" checked />
+        </label>
+      </span>
+    </li>
+    <!--User-List-Element-->
+   </ul>
+
   <div class="board-popup-ticket-delete-save">
     <div onclick="saveTicket('1111')"><img  src="{% static 'img/save48.png' %}"></div>
     <div onclick="deleteTicket('1111')"><img  src="{% static 'img/delete48.png' %}"></div>

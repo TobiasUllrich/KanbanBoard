@@ -8,6 +8,7 @@ from django.http import HttpResponse #Um das HttpResponseObjekt nutzen zu könne
 from django.contrib.auth.models import User #Model User wird importiert
 from .models import List, Ticket, TicketToUser #Models Board & Tickets werden importiert
 from django.http import HttpResponseRedirect, JsonResponse #Zum Weiterleiten
+import datetime #Um Datum umzuwandeln
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -45,6 +46,8 @@ class TicketViewSet(viewsets.ModelViewSet):
     #     return HttpResponseRedirect('/login/')
 
 
+
+
     def put(self, request): #PUT
      print('UPDATE SOLLTE PERFORMED WERDEN ', Ticket.objects.get(id=request.data.get('id')))
      ObjectToUpdate = Ticket.objects.get(id=request.data.get('id'))
@@ -72,19 +75,40 @@ class TicketViewSet(viewsets.ModelViewSet):
      ObjectToBeDeleted.delete()
      return JsonResponse({"Deleted": True})
     
+    # def changeDate(qryset):
+    #  for i, d in enumerate(qryset):
+    #   qryset[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
+    #   qryset[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+
     def list(self, request): #GET
      print('GET SOLLTE PERFORMED WERDEN ')
      toDos = Ticket.objects.filter(ticket_list=1)
      inProgress = Ticket.objects.filter(ticket_list=2)
-     for inPro in inProgress:
-      print(inPro.ticket_to_user.all())
-      
      awaitingFeedback = Ticket.objects.filter(ticket_list=3)
      dones = Ticket.objects.filter(ticket_list=4)
+    #  changeDate(toDos)
+    #  changeDate(inProgress)
+    #  changeDate(awaitingFeedback)
+    #  changeDate(dones)
+
+     for i, d in enumerate(toDos):
+      toDos[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
+      toDos[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d') 
+     for i, d in enumerate(inProgress):
+      inProgress[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
+      inProgress[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+     for i, d in enumerate(awaitingFeedback):
+      awaitingFeedback[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
+      awaitingFeedback[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+     for i, d in enumerate(dones):
+      dones[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
+      dones[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+
     #  print(serializers.serialize('json', [dones [0], ]))
     #  print(dones [1])
     #  print(dones [2])
      return render(request, 'board/board.html', {'toDos': toDos,'inProgress':inProgress,'awaitingFeedback':awaitingFeedback,'dones':dones})
+
 
     def create(self, request): #POST
         print('POST SOLLTE PERFORMED WERDEN')
