@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from datetime import date
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -18,12 +19,12 @@ class Ticket(models.Model):
     ticket_prio = models.CharField(max_length=500)
     ticket_created_at = models.DateField(default=date.today)  
     ticket_list = models.ForeignKey(to=List, on_delete=models.CASCADE, related_name='ticket_in_list',null=True)  #ForeignKey can be accessed through 'Tickets.ticket_in_list'
-    ticket_to_user = models.ManyToManyField(to=settings.AUTH_USER_MODEL, through='TicketToUser')
+    ticket_to_user = models.ManyToManyField(to=User, through='TicketToUser' , related_name='ticket_to_user')
   
 # [4.] Intermediate Model between Ticket and User
 class TicketToUser(models.Model):
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     t2u_created_at = models.DateField(default=date.today)
 
 

@@ -38,11 +38,11 @@ class TicketViewSet(viewsets.ModelViewSet):
     #If GET-Request: We receive a Queryset
     queryset = Ticket.objects.all().order_by('id')
     serializer_class = TicketsSerializer
-    permission_classes = [permissions.IsAuthenticated] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
-    authentication_classes =[authentication.SessionAuthentication]
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
+    #authentication_classes =[authentication.SessionAuthentication]
     
-    def handle_exception(self):
-        return HttpResponseRedirect('/login/')
+    # def handle_exception(self):
+    #     return HttpResponseRedirect('/login/')
 
 
     def put(self, request): #PUT
@@ -74,11 +74,15 @@ class TicketViewSet(viewsets.ModelViewSet):
     
     def list(self, request): #GET
      print('GET SOLLTE PERFORMED WERDEN ')
+     print(Ticket.objects.all())
      toDos = Ticket.objects.filter(ticket_list=1)
      inProgress = Ticket.objects.filter(ticket_list=2)
      awaitingFeedback = Ticket.objects.filter(ticket_list=3)
-     done = Ticket.objects.filter(ticket_list=4)
-     return render(request, 'board/board.html', {'toDos': toDos,'inProgress':inProgress,'awaitingFeedback':awaitingFeedback,'done':done})
+     dones = Ticket.objects.filter(ticket_list=4)
+    #  print(serializers.serialize('json', [dones [0], ]))
+    #  print(dones [1])
+    #  print(dones [2])
+     return render(request, 'board/board.html', {'toDos': toDos,'inProgress':inProgress,'awaitingFeedback':awaitingFeedback,'dones':dones})
 
     def create(self, request): #POST
         print('POST SOLLTE PERFORMED WERDEN')
@@ -87,7 +91,7 @@ class TicketViewSet(viewsets.ModelViewSet):
         for item in request.data.get('ticket_to_user'):
          print('UserID ',item)
          userinstancearray.append(User.objects.get(id=item))
-
+         print(userinstancearray)
         newTicket = Ticket.objects.create(ticket_description = request.data.get('ticket_description'),
                                            ticket_title= request.data.get('ticket_title'),
                                            ticket_duedate= request.data.get('ticket_duedate'),

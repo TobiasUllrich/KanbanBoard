@@ -9,40 +9,90 @@
 <script src="{% static 'js/board.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/board.css' %}">
 
-
 <div class="board-header">
-  <div class="board-lists">To do</div>
-  <div class="board-lists">In progress</div>
-  <div class="board-lists">Awaiting feedback</div>
-  <div class="board-lists">Done</div>
+  <div class="board-lists">
+    <span class="board-list-title">To do</span>
+  <!-- Button -->
+  <button class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+   <i class="material-icons">add</i>
+  </button>
+  </div>
+  <div class="board-lists">
+    <span class="board-list-title">In progress</span>
+  </div>
+  <div class="board-lists">
+    <span class="board-list-title">Awaiting feedback</span>
+  </div>
+  <div class="board-lists">
+    <span class="board-list-title">Done</span>
+  </div>
 </div>
+
 
 <div class="board-container">
  <!-- ToDos --> 
-<div id="todo" class="drag-area" ondrop="moveTo('todo')" ondragover="allowDrop(event)">
-  <div id="testbox" draggable="true" ondragstart="startDragging('1')">blublulbulbu</div>
-
-  <!-- ZUM TESTEN --> 
-  <div id="xxx">
-    {% for todo in toDos reversed %}
-    <div class="xxx">
-      <span class="xxx">[{{ todo.ticket_description }}]</span>
-      <span> {{ todo.ticket_title }}: </span> 
-      <i> {{ todo.ticket_created_at }} </i>
+<div id="todo" class="drag-area" ondrop="moveTo(1,'todo')" ondragover="allowDrop(event)">
+  
+    <!-- ZUM TESTEN --> 
+    {% for toDo in toDos reversed %}
+    <div class="ticket" id='{{toDo.id}}' draggable="true" ondragstart="startDragging('{{ toDo.id}}')">
+      <span>Title: <span style="color:black">{{ toDo.ticket_title }}</span></span>
+      <span>Description: {{ toDo.ticket_description }}</span> 
+      <span>Created at: {{ toDo.ticket_created_at }} </span>
+      <span>Due date: {{ toDo.ticket_duedate }} </span>
+      <span>Priority: {{ toDo.ticket_prio }} </span>
+      <span>Users: {{ toDo.ticket_to_user }} </span>
     </div>
     {% endfor %}
-  </div>
   <!-- ZUM TESTEN --> 
-
+  
 </div>
  <!-- InProgress --> 
-<div id="inprogress" class="drag-area" ondrop="moveTo('inprogress')" ondragover="allowDrop(event)">
-  <div id="testbox" draggable="true" ondragstart="startDragging('2')">zzzz</div></div>
-<!-- AwaitingFeedback --> 
-<div id="awaitingfeedback" class="drag-area" ondrop="moveTo('awaitingfeedback')" ondragover="allowDrop(event)"></div>
-<!-- Done --> 
-<div id="done" class="drag-area" ondrop="moveTo('done')" ondragover="allowDrop(event)"></div>
+<div id="inprogress" class="drag-area" ondrop="moveTo(2,'inprogress')" ondragover="allowDrop(event)">
+    <!-- ZUM TESTEN --> 
+    {% for inPro in inProgress reversed %}
+    <div class="ticket" id='{{inPro.id}}' draggable="true" ondragstart="startDragging('{{inPro.id}}')">
+      <span>Title: <span style="color:black">{{ inPro.ticket_title }}</span></span>
+      <span>Description: {{ inPro.ticket_description }}</span> 
+      <span>Created at: {{ inPro.ticket_created_at }} </span>
+      <span>Due date: {{ inPro.ticket_duedate }} </span>
+      <span>Priority: {{ inPro.ticket_prio }} </span>
+      <span>Users: {{ inPro.ticket_to_user }} </span>
+    </div>
+    {% endfor %}
+  <!-- ZUM TESTEN --> 
 </div>
+<!-- AwaitingFeedback --> 
+<div id="awaitingfeedback" class="drag-area" ondrop="moveTo(3,'awaitingfeedback')" ondragover="allowDrop(event)">
+    <!-- ZUM TESTEN --> 
+    {% for awFeed in awaitingFeedback reversed %}
+    <div class="ticket" id='{{awFeed.id}}' draggable="true" ondragstart="startDragging('{{awFeed.id}}')">
+      <span>Title: <span style="color:black">{{ awFeed.ticket_title }}</span></span>
+      <span>Description: {{ awFeed.ticket_description }}</span> 
+      <span>Created at: {{ awFeed.ticket_created_at }} </span>
+      <span>Due date: {{ awFeed.ticket_duedate }} </span>
+      <span>Priority: {{ awFeed.ticket_prio }} </span>
+      <span>Users: {{ awFeed.ticket_to_user }} </span>
+    </div>
+    {% endfor %}
+  <!-- ZUM TESTEN --> 
+</div>
+<!-- Done --> 
+<div id="done" class="drag-area" ondrop="moveTo(4,'done')" ondragover="allowDrop(event)">
+    <!-- ZUM TESTEN --> 
+    {% for done in dones reversed %}
+    <div class="ticket" id='{{done.id}}' draggable="true" ondragstart="startDragging('{{ done.id }}')">
+      <span>Title: <span style="color:black">{{ done.ticket_title }}</span></span>
+      <span>Description: {{ done.ticket_description }}</span> 
+      <span>Created at: {{ done.ticket_created_at }} </span>
+      <span>Due date: {{ done.ticket_duedate }} </span>
+      <span>Priority: {{ done.ticket_prio }} </span>
+      <span>Users: {{ done.ticket_to_user }} </span>
+    </div>
+    {% endfor %}
+  <!-- ZUM TESTEN --> 
+</div>
+
 
 <!-- User registered? -->
 {% if request.user.is_authenticated %}
