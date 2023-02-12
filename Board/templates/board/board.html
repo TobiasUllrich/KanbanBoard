@@ -13,7 +13,7 @@
   <!-- Create Tickets in List ToDos --> 
   <div class="board-lists">
     <span class="board-list-title">To do</span>
-  <button onclick="createTicket(1)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+  <button onclick="newTicket(1)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
    <i class="material-icons">add</i>
   </button>
   </div>
@@ -22,7 +22,7 @@
   <!-- Create Tickets in List InProgress --> 
   <div class="board-lists">
     <span class="board-list-title">In progress</span>
-    <button onclick="createTicket(2)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+    <button onclick="newTicket(2)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
       <i class="material-icons">add</i>
      </button>
   </div>
@@ -31,7 +31,7 @@
   <!-- Create Tickets in List AwaitingFeedback -->
   <div class="board-lists">
     <span class="board-list-title">Awaiting feedback</span>
-    <button onclick="createTicket(3)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+    <button onclick="newTicket(3)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
       <i class="material-icons">add</i>
      </button>
   </div>
@@ -40,7 +40,7 @@
   <!-- Create Tickets in List Done -->
   <div class="board-lists">
     <span class="board-list-title">Done</span>
-    <button onclick="createTicket(4)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+    <button onclick="newTicket(4)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
       <i class="material-icons">add</i>
      </button>
   </div>
@@ -175,10 +175,10 @@
     <li class="mdl-list__item">
       <span class="mdl-list__item-primary-content">
         <i class="material-icons  mdl-list__item-avatar">person</i>
-        {{ user.username }}
+        <b id='username-{{ user.id }}'>{{ user.username }}</b>
       </span>
       <span class="mdl-list__item-secondary-action">
-        <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-1">
+        <label onclick="selectUser('user-{{ user.id }}')" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-1">
           <input type="checkbox" id="user-{{ user.id }}" class="mdl-checkbox__input"/>
         </label>
       </span>

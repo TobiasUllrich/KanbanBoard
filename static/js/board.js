@@ -113,7 +113,7 @@ function selectUsersInForm(ticketId) {
  * Fills the Ticket-PopUp with predefined or empty data and shows it to the user
  * @param {number} listId id of the list  
  */
-function createTicket(listId) {
+function newTicket(listId) {
   actTicketId = '';
   actListId = listId;
   //console.log(actTicketId, ' ', actListId);
@@ -216,6 +216,7 @@ function switchYearAndDayOfDate(datetotransform, separatorOutput) {
  */
 function getSelectedUsersAsArray(){
   let userArray=[];
+  let userNameArray=[];
   let parent = document.getElementsByTagName('label');
   for (let i = 0; i < parent.length; i++) {
     let children = parent[i].children;
@@ -224,56 +225,104 @@ function getSelectedUsersAsArray(){
         //console.log('User marked ',children[j].id)
         //console.log('User marked ',children[j].id.slice(children[j].id.indexOf("-") + 1, children[j].id.length))
         userArray.push(parseInt(children[j].id.slice(children[j].id.indexOf("-") + 1, children[j].id.length)));
+        let id='username-'+children[j].id.slice(children[j].id.indexOf("-") + 1, children[j].id.length);
+        userNameArray.push(document.getElementById(id).innerHTML);   
       };
     }
   }
-  return userArray;
+  return {'val1': userArray, 'val2': userNameArray};
 }
 
 /**
  * Catches the value of the Prio-Field of the PopUp
  * @returns value of the Prio-Field
  */
-function getValueOfSelectedPrio(){
-  let e = document.getElementById('ticket_prio');
+function getValueOfSelectedIteminDropDownField(id){
+  let e = document.getElementById(id);
   let val = e.options[e.selectedIndex].text;
   return val;
 }
 
+/**
+ * Selects the User
+ * @param {string} id of the user-box
+ */
+function selectUser(id){
+  document.getElementById(id).click();
+}
 
+/**
+ * Deletes the Ticket in HTML
+ * @param {string} ticketId id of the HTML-Element that is deleted
+ */
+function removeTicket(ticketId) {
+  document.getElementById(ticketId).remove();
+}
 
+/**
+ * Creates a Ticket in HTML
+ */
+function createTicket(){
+
+}
+
+/**
+ * Updates a Ticket in HTML
+ */
+function updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,usersName){
+  document.getElementById(`title${ticketId}`).innerHTML=title;
+  document.getElementById(`description${ticketId}`).innerHTML=description;
+  document.getElementById(`createdat${ticketId}`).innerHTML=switchYearAndDayOfDate(createdat,'-');
+  document.getElementById(`duedate${ticketId}`).innerHTML=switchYearAndDayOfDate(duedate,'-');
+  document.getElementById(`prio${ticketId}`).innerHTML=prio;
+  document.getElementById(`tickettouser${ticketId}`).innerHTML='';
+  for(i=0;i<usersId.length;i++){
+    let id = `tickettouser${ticketId}-${usersId[i]}`;
+    document.getElementById(`tickettouser${ticketId}`).innerHTML+=`
+    <span id="${id}" class="colortext">${usersName[i]}</span>`;
+  }
+}
 
 function saveTicket() {
+  ticketId=actTicketId;
   console.log('TicketNummer ', actTicketId);
+  title=document.getElementById('ticket_title').value;
   console.log('Title ',document.getElementById('ticket_title').value);
+  description=document.getElementById('ticket_description').value;
   console.log('Description ',document.getElementById('ticket_description').value);
+  createdat=document.getElementById('ticket_created_at').value;
   console.log('Created_at ',document.getElementById('ticket_created_at').value);
+  duedate=document.getElementById('ticket_duedate').value;
   console.log('DueDate ',document.getElementById('ticket_duedate').value);
-  console.log('Listen-Nummer ',actListId);
-  console.log('Prio ',getValueOfSelectedPrio());
-  console.log('Users ',getSelectedUsersAsArray());
+  console.log('Listen-Nummer-ID ',actListId);
+  console.log('Listen-Nummer-Wert ',getValueOfSelectedIteminDropDownField('ticket_list'));
+  console.log('Prio-ID ',document.getElementById('ticket_prio').value);
+  prio=getValueOfSelectedIteminDropDownField('ticket_prio');
+  console.log('Prio-Wert ',getValueOfSelectedIteminDropDownField('ticket_prio'));
+  let result = getSelectedUsersAsArray();
+  usersId = result.val1;
+  console.log('Users-ID ', result.val1 );
+  usersName = result.val2;
+  console.log('Users-Wert ', result.val2);
   console.log('POST-REQUEST OR PUT-REQUEST');
   //MUSS UNBEDINGT NOCH IM HTML-CODE GEÄNDERT WERDEN IN DER TICKET-BOX
-  closeTicket();
+  if(actTicketId == ''){
+    createTicket();
+  }
+  else{
+    updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,usersName);
+  }
+    closeTicket();
 }
 
 
 function deleteTicket(ticketId = actTicketId) { //Use actTicket if no ticketId is provided at function-call
   if (ticketId !== '') { //Falls wir bei createTicket sind kann man das Ticket nicht löschen
-    document.getElementById(`${ticketId}`).remove();
+    removeTicket(ticketId);
     console.log(`DELETE-REQUEST for ${ticketId} `);
     closeTicket();
   }
 }
-
-
-
-
-function putReq(newListId) {
-  console.log(currentDraggedElement.id);
-  console.log(newListId);
-}
-
 
 
 
