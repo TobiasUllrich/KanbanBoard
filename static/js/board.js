@@ -1,5 +1,7 @@
-let currentDraggedElement; //Saves the currently dragged Element
-let parentElementofDraggedElement; //Saves the parent of the currently dragged Element
+let currentDraggedElement; //Saves the currently dragged HTML-Element
+let parentElementofDraggedElement; //Saves the parent of the currently dragged HTML-Element
+let actTicketId; //Saves the id of the currently opened ticket
+let actListId; //Saves the id of the list of the currently opened ticket
 
 /**
  * Allows dropping of Elements over div-containers
@@ -10,82 +12,148 @@ function allowDrop(ev) {
 }
 
 /**
- * When dragging starts: Saves the currently dragged Element and its parent in global variables
- * @param {number} id of the dragged HTML-Element
+ * When dragging starts: Saves the currently dragged HTML-Element and its parent in global variables
+ * @param {string} id id of the dragged HTML-Element
  */
-function startDragging(id){
-  currentDraggedElement=document.getElementById(id);
-  //console.log('Element mit der id: ',id,' wird gerade gezogen!');
+function startDragging(id) {
+  currentDraggedElement = document.getElementById(id);
   parentElementofDraggedElement = currentDraggedElement.parentNode;
+  //console.log('Element mit der id: ',id,' wird gerade gezogen!');
   //console.log('Wurzel ist Element mit id: ',parentElementofDraggedElement.id);
 }
 
 /**
- * Dragged Element gets dropped on another Container and then gets added to this Container
- * @param {number} newListId id of the other Container
- * @param {number} idWhereCurrentDraggedElementIsDropped id of the other Container
+ * Dragged HTML-Element gets dropped on another Container and then gets added to this Container
+ * @param {number} newListId id of the list the new HTML-Element will get
+ * @param {string} newContainerId id of the Container where the current dragged element is dropped in
  */
-async function moveTo(newListId,idWhereCurrentDraggedElementIsDropped) {
-  if (parentElementofDraggedElement.id !== idWhereCurrentDraggedElementIsDropped){
-  //console.log('Von ',parentElementofDraggedElement.id,' zu ',idWhereCurrentDraggedElementIsDropped);
-  //console.log('Ziel ist Element mit id: ',newListId);
+async function moveTo(newListId, newContainerId) {
+  if (parentElementofDraggedElement.id !== newContainerId) {
+    //console.log('Von ',parentElementofDraggedElement.id,' zu ',idWhereCurrentDraggedElementIsDropped);
+    //console.log('Ziel ist Element mit id: ',newListId);
 
-  //PUT-REQUEST
-  await changeList(currentDraggedElement.id,newListId); 
+    //PUT-REQUEST
+    await changeList(currentDraggedElement.id, newListId);
+    await putReq(newListId)
 
-  document.getElementById(idWhereCurrentDraggedElementIsDropped).innerHTML +=`
-  <div class="ticket" id='${currentDraggedElement.id}' draggable="true" ondragstart="startDragging('${currentDraggedElement.id}')">
-   ${currentDraggedElement.innerHTML}
-  </div>`;
-  
-  currentDraggedElement.remove();
-  //console.log(document.getElementById(newListId));
+    placeTicketInAnotherList(newContainerId);
+    removeTicketFromFormerList();
   }
 }
 
+/**
+ * Creates a new HTML-Element inside the dropping Container
+ * @param {string} newContainerId id of the Container where the current dragged element is dropped in
+ */
+function placeTicketInAnotherList(newContainerId) {
+  document.getElementById(newContainerId).innerHTML += `
+  <div class="ticket" id='${currentDraggedElement.id}' draggable="true" ondragstart="startDragging('${currentDraggedElement.id}')">
+   ${currentDraggedElement.innerHTML}
+  </div>`;
+}
 
-function editTicket(ticketId,listId){
-  document.getElementById('invTicketId').innerHTML=ticketId;
-  document.getElementById('invListId').innerHTML=listId;
+/**
+ * Deletes the dragged HTML-Element from its original list
+ */
+function removeTicketFromFormerList() {
+  currentDraggedElement.remove();
+}
 
-  document.getElementById('ticket_title').value=document.getElementById(`title${ticketId}`).innerHTML;
-  document.getElementById('ticket_description').value=document.getElementById(`description${ticketId}`).innerHTML;
-  document.getElementById('ticket_created_at').value=document.getElementById(`createdat${ticketId}`).innerHTML;
-  document.getElementById('ticket_duedate').value=document.getElementById(`duedate${ticketId}`).innerHTML;
-  //document.getElementById('ticket_prio').value=document.getElementById(`prio${ticketId}`).innerHTML;
+/**
+ * Fills the Ticket-PopUp with data and shows it to the user
+ * @param {string} ticketId id of the opened ticket
+ * @param {number} listId id of the list  
+ */
+function editTicket(ticketId, listId) {
+  actTicketId = ticketId;
+  actListId = listId;
+  //console.log(actTicketId, ' ', actListId);
+  document.getElementById('ticket_title').value = document.getElementById(`title${ticketId}`).innerHTML;
+  document.getElementById('ticket_description').value = document.getElementById(`description${ticketId}`).innerHTML;
+  document.getElementById('ticket_created_at').value = switchYearAndDayOfDate(document.getElementById(`createdat${ticketId}`).innerHTML, '-');
+  document.getElementById('ticket_created_at').disabled = true;
+  document.getElementById('ticket_duedate').value = switchYearAndDayOfDate(document.getElementById(`duedate${ticketId}`).innerHTML, '-');
+  document.getElementById('ticket_list').selectedIndex = listId - 1;
+  document.getElementById('ticket_list').disabled = true;
   selectListboxItemByText('ticket_prio', document.getElementById(`prio${ticketId}`).innerHTML);
-  document.getElementById('ticket_to_user').value=document.getElementById(`tickettouser${ticketId}`).innerHTML;
+  selectUsersInForm(ticketId);
+  openTicket();
+  //console.log(`Ticket with id ${ticketId} & list ${listId} can be edited here`);
+}
+
+/**
+ * Demarks all Users in the Userlist of the PopUp-Form
+ */
+function demarkAllUsersInForm() {
+  let parent = document.getElementsByTagName('label');
+  for (let i = 0; i < parent.length; i++) {
+    let children = parent[i].children;
+    for (let j = 0; j < children.length; j++) {
+      if (children[j].checked == true) {children[j].click()};
+    }
+  }
+}
+
+/**
+ * Selects all Users in the Userlist of the PopUp-Form
+ */
+function selectUsersInForm(ticketId) {
+  let parent = document.getElementById(`tickettouser${ticketId}`);
+  let children = parent.children;
+  for (let i = 0; i < children.length; i++) {
+    //console.log(children[i].id);
+    //console.log(children[i].id.slice(children[i].id.indexOf("-") + 1, children[i].id.length));
+    let userid = children[i].id.slice(children[i].id.indexOf("-") + 1, children[i].id.length); //Cuts of the id of the user at the end
+    //console.log(`user-${userid}`, ' auf true setzen');
+    document.getElementById(`user-${userid}`).click(); //User gets selected
+  }
+}
+
+/**
+ * Fills the Ticket-PopUp with predefined or empty data and shows it to the user
+ * @param {number} listId id of the list  
+ */
+function createTicket(listId) {
+  actTicketId = '';
+  actListId = listId;
+  //console.log(actTicketId, ' ', actListId);
+  document.getElementById('ticket_title').value = '';
+  document.getElementById('ticket_description').value = '';
+  //console.log(getActualDate());
+  document.getElementById('ticket_created_at').value = `${getActualDate('-')}`;
+  document.getElementById('ticket_created_at').disabled = true;
+  document.getElementById('ticket_duedate').value = `${getActualDate('-')}`;
+  document.getElementById('ticket_list').selectedIndex = listId - 1;
+  document.getElementById('ticket_list').disabled = true;
+  document.getElementById('ticket_prio').selectedIndex = 0;
+  openTicket();
+  //console.log('New Ticket can be created here with ticket_list', listId);
+}
+
+/**
+ * Opens the Ticket-PopUp
+ */
+function openTicket() {
   document.getElementById('board-popup').classList.add('d-flex');
-  console.log(`Ticket with id ${ticketId} & list ${listId} can be edited here`);
 }
 
-function deleteTicket(ticketId){
-  console.log(`Ticket with ${ticketId} can be deleted here`);
-  //DELETE-REQUEST
-}
-
-function createTicket(listId){
-  document.getElementById('invTicketId').innerHTML='';
-  document.getElementById('invListId').innerHTML=listId;
-  document.getElementById('board-popup').classList.add('d-flex');
-  console.log('New Ticket can be created here with ticket_list', listId);
-}
-
-function saveTicket(ticketId,listId){
- //POST-REQUEST
-}
-
-function closeTicket(){
+/**
+ * Closes the Ticket-PopUp
+ */
+function closeTicket() {
+  demarkAllUsersInForm();
+  actTicketId = '';
+  actListId = '';
   document.getElementById('board-popup').classList.remove('d-flex');
 }
 
 /**
- * Closes the PopUp to edit or create a ticket
+ * Closes the PopUp
  * @param {event} event 
  */
-window.onclick = function(event) {
-   if(event.target.id == 'board-popup'){
-    document.getElementById('board-popup').classList.remove('d-flex');  
+window.onclick = function (event) {
+  if (event.target.id == 'board-popup') {
+    closeTicket();
   }
 }
 
@@ -95,7 +163,7 @@ window.onclick = function(event) {
  * @param {string} text text we are searching for in the listbox
  */
 function selectListboxItemByText(idOfListbox, text) {
-  var listbox = document.getElementById(idOfListbox);
+  let listbox = document.getElementById(idOfListbox);
   for (let i = 0; i < listbox.options.length; i++) {
     if (listbox.options[i].text === text) {
       listbox.options[i].selected = true;
@@ -104,7 +172,107 @@ function selectListboxItemByText(idOfListbox, text) {
   }
 }
 
+/**
+ * Generates the actual Date in the format "2010-10-30" or "2010.10.30"
+ * @param {string} separator ('.' or '-')
+ * @returns the actual Date
+ */
+function getActualDate(separator) {
+  let currentdate = new Date();  /* Erzeugt eine Datums-Variable mit aktuellem Datum */
+  let year = currentdate.getFullYear();
+  let month = currentdate.getMonth() + 1;
+  month = String(month).padStart(2, '0');
+  let day = currentdate.getDate();
+  let dateToday = year + `${separator}` + month + `${separator}` + day;
+  return dateToday;
+}
 
+/**
+ * Receives a string-variable in the format "30-10-2010" and converts it into string "2010-10-30" or "2010.10.30"
+ * @param {string} datetotransform The received string-variable
+ * @param {string} separatorOutput The separator of the Output-Date ('.' or '-')
+ * @returns string-variable newDate
+ */
+function switchYearAndDayOfDate(datetotransform, separatorOutput) {
+  let datum = datetotransform;
+  let ersterstrich = datum.indexOf("-");
+  let zweiterstrich = datum.lastIndexOf("-");
+  let tag = datum.slice(0, ersterstrich);
+  if (tag.length == 1) {
+    tag = "0" + tag;
+  }
+  let monat = datum.slice(ersterstrich + 1, zweiterstrich);
+  if (monat.length == 1) {
+    monat = "0" + monat;
+  }
+  let jahr = datum.slice(zweiterstrich + 1, datum.length);
+  let newDate = jahr + `${separatorOutput}` + monat + `${separatorOutput}` + tag;
+  return newDate;
+}
+
+/**
+ * Catches all Users that are selected in the User-List of the PopUp and puts theier ids into an Array
+ * @returns Array with user-ids
+ */
+function getSelectedUsersAsArray(){
+  let userArray=[];
+  let parent = document.getElementsByTagName('label');
+  for (let i = 0; i < parent.length; i++) {
+    let children = parent[i].children;
+    for (let j = 0; j < children.length; j++) {
+      if (children[j].checked == true) {
+        //console.log('User marked ',children[j].id)
+        //console.log('User marked ',children[j].id.slice(children[j].id.indexOf("-") + 1, children[j].id.length))
+        userArray.push(parseInt(children[j].id.slice(children[j].id.indexOf("-") + 1, children[j].id.length)));
+      };
+    }
+  }
+  return userArray;
+}
+
+/**
+ * Catches the value of the Prio-Field of the PopUp
+ * @returns value of the Prio-Field
+ */
+function getValueOfSelectedPrio(){
+  let e = document.getElementById('ticket_prio');
+  let val = e.options[e.selectedIndex].text;
+  return val;
+}
+
+
+
+
+function saveTicket() {
+  console.log('TicketNummer ', actTicketId);
+  console.log('Title ',document.getElementById('ticket_title').value);
+  console.log('Description ',document.getElementById('ticket_description').value);
+  console.log('Created_at ',document.getElementById('ticket_created_at').value);
+  console.log('DueDate ',document.getElementById('ticket_duedate').value);
+  console.log('Listen-Nummer ',actListId);
+  console.log('Prio ',getValueOfSelectedPrio());
+  console.log('Users ',getSelectedUsersAsArray());
+  console.log('POST-REQUEST OR PUT-REQUEST');
+  //MUSS UNBEDINGT NOCH IM HTML-CODE GEÄNDERT WERDEN IN DER TICKET-BOX
+  closeTicket();
+}
+
+
+function deleteTicket(ticketId = actTicketId) { //Use actTicket if no ticketId is provided at function-call
+  if (ticketId !== '') { //Falls wir bei createTicket sind kann man das Ticket nicht löschen
+    document.getElementById(`${ticketId}`).remove();
+    console.log(`DELETE-REQUEST for ${ticketId} `);
+    closeTicket();
+  }
+}
+
+
+
+
+function putReq(newListId) {
+  console.log(currentDraggedElement.id);
+  console.log(newListId);
+}
 
 
 
@@ -120,8 +288,8 @@ const monthNames = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug
 /**
  * Sends a Message to the chat
  */
-async function changeList(ticketId,listId) {
-  let fd = getDataFromMessageForm(ticketId,listId);
+async function changeList(ticketId, listId) {
+  let fd = getDataFromMessageForm(ticketId, listId);
   //let messageContainerSaved = messageContainer.innerHTML;
   //let dateOfPost = giveActualDate(); //Get actual Date
 
@@ -140,12 +308,12 @@ async function changeList(ticketId,listId) {
  * Fetches Data from the messageField
  * @returns Form-Data-Object
  */
-function getDataFromMessageForm(ticketId,listId) {
+function getDataFromMessageForm(ticketId, listId) {
   let fd = new FormData();
   fd.append('id', ticketId);
   fd.append('ticket_list', listId);
   fd.append('csrfmiddlewaretoken', token);
-  console.log(ticketId,listId,token);
+  console.log(ticketId, listId, token);
   return fd;
 }
 
@@ -176,14 +344,14 @@ async function waitingForServerResponse(fd) {
 /**
  * Removes JS-Message (preview of real message)
  */
-function removeMessageFromMessageContainer(){
+function removeMessageFromMessageContainer() {
   document.getElementById('deleteMessage').remove();
 }
 
 /**
  * Shows Message
  */
-function showMessageInMessageContainer(date,username,textmessage,colorOfDate,colorOfText,id,messageContainerSaved){
+function showMessageInMessageContainer(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved) {
   messageContainer.innerHTML = `
   <div id="${id}">
     <span class="color-${colorOfDate}">${date}</span> ${username}: <i class="color-${colorOfText}">${textmessage}</i>
@@ -207,8 +375,8 @@ function emptyTextField() {
  * @param {String} id 
  * @param {String} messageContainerSaved 
  */
-function showLoadingAnimation(dateOfPost,username,message,colorOfDate,colorOfText,id,messageContainerSaved) {
-  showMessageInMessageContainer(dateOfPost,username,message,colorOfDate,colorOfText,id,messageContainerSaved);
+function showLoadingAnimation(dateOfPost, username, message, colorOfDate, colorOfText, id, messageContainerSaved) {
+  showMessageInMessageContainer(dateOfPost, username, message, colorOfDate, colorOfText, id, messageContainerSaved);
   document.getElementById('spinner').classList.remove('d-none');
 }
 
@@ -230,10 +398,10 @@ function removeLoadingAnimation() {
  * @param {String} id 
  * @param {String} messageContainerSaved 
  */
-function showSendingMessageSuccessful(date,username,textmessage,colorOfDate,colorOfText,id,messageContainerSaved) {
+function showSendingMessageSuccessful(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved) {
   removeMessageFromMessageContainer();
   removeLoadingAnimation();
-  showMessageInMessageContainer(date,username,textmessage,colorOfDate,colorOfText,id,messageContainerSaved);
+  showMessageInMessageContainer(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved);
 }
 
 /**
@@ -246,12 +414,12 @@ function showSendingMessageSuccessful(date,username,textmessage,colorOfDate,colo
  * @param {String} id 
  * @param {String} messageContainerSaved 
  */
-function showSendingMessageFailed(date,username,textmessage,colorOfDate,colorOfText,id,messageContainerSaved) {
-  showMessageInMessageContainer(date,username,textmessage,colorOfDate,colorOfText,id,messageContainerSaved);
-  setTimeout(()=>{
+function showSendingMessageFailed(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved) {
+  showMessageInMessageContainer(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved);
+  setTimeout(() => {
     removeLoadingAnimation();
-    document.getElementById('deleteMessage').innerHTML+=`<span class="color-red"> - Sry. Message could not be send. </span>`;
-  },3000); 
+    document.getElementById('deleteMessage').innerHTML += `<span class="color-red"> - Sry. Message could not be send. </span>`;
+  }, 3000);
 }
 
 /**
@@ -259,8 +427,8 @@ function showSendingMessageFailed(date,username,textmessage,colorOfDate,colorOfT
  * @returns string datetime
  */
 function giveActualDate() {
-  var currentdate = new Date();  /* Generates a date-variable with actual date */
-  var datetime = "[" + currentdate.toLocaleString('default', { month: 'short' }) + ". "
+  let currentdate = new Date();  /* Generates a date-variable with actual date */
+  let datetime = "[" + currentdate.toLocaleString('default', { month: 'short' }) + ". "
     + currentdate.getDate() + ", "   /* Month */
     + currentdate.getFullYear() + "]";  /* Year */
   return datetime;
@@ -277,10 +445,10 @@ function transformDateIntoWishedFormat(datetotransform) {
   let zweiterstrich = datum.lastIndexOf("-");
   let jahr = datum.slice(0, ersterstrich);
   let monat = datum.slice(ersterstrich + 1, zweiterstrich);
-  if (monat.length == 2 && monat.slice(0, 0) == '0') {monat = monat.slice(1, 1)};
+  if (monat.length == 2 && monat.slice(0, 0) == '0') { monat = monat.slice(1, 1) };
   monat = monthNames[monat - 1];
   let tag = datum.slice(zweiterstrich + 1, datum.length);
-  if (tag.length == 2 && tag.slice(0, 1) == '0') {tag = tag.slice(-1)};
+  if (tag.length == 2 && tag.slice(0, 1) == '0') { tag = tag.slice(-1) };
   let wisheddate = monat + " " + tag + ", " + jahr;
   return wisheddate;
 }

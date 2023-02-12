@@ -53,7 +53,7 @@
 <div id="todo" class="drag-area" ondrop="moveTo(1,'todo')" ondragover="allowDrop(event)">
     <!-- Tickets in List ToDos --> 
     {% for toDo in toDos reversed %}
-    <div class="ticket" id='{{toDo.id}}' draggable="true" ondragstart="startDragging('{{ toDo.id}}')">
+    <div class="ticket" id='{{toDo.id}}' draggable="true" ondragstart="startDragging('{{toDo.id}}')">
       <span>Title: <span id="title{{toDo.id}}" class="colortext">{{ toDo.ticket_title }}</span></span>
       <span>Description: <span id="description{{toDo.id}}" class="colortext">{{ toDo.ticket_description }}</span></span> 
       <span>Created at: <span id="createdat{{toDo.id}}" class="colortext">{{ toDo.ticket_created_at }}</span></span>
@@ -62,12 +62,12 @@
       <span>Users: 
         <span id="tickettouser{{toDo.id}}" class="colortext">
         {% for user in toDo.ticket_to_user.all %}
-        {{ user.id }}, 
+        <span id="tickettouser{{toDo.id}}-{{ user.id }}" class="colortext">{{ user.username }}</span>
         {% endfor %}
         </span>
       </span>
-      <div class="ticket-edit" onclick="editTicket('{{ toDo.id}}',1)"><img  src="{% static 'img/edit16.png' %}"></div>
-      <div class="ticket-delete" onclick="deleteTicket('{{ toDo.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
+      <div class="ticket-edit" onclick="editTicket('{{toDo.id}}',1)"><img  src="{% static 'img/edit16.png' %}"></div>
+      <div class="ticket-delete" onclick="deleteTicket('{{toDo.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
     {% endfor %}
     <!-- Tickets in List ToDos --> 
@@ -85,12 +85,12 @@
       <span>Users: 
         <span id="tickettouser{{inPro.id}}" class="colortext">
           {% for user in inPro.ticket_to_user.all %}
-          {{ user.id }}, 
+          <span id="tickettouser{{inPro.id}}-{{ user.id }}" class="colortext">{{ user.username }}</span>
           {% endfor %}
         </span>
       </span>
-      <div class="ticket-edit" onclick="editTicket('{{ inPro.id}}',2)"><img  src="{% static 'img/edit16.png' %}"></div>
-      <div class="ticket-delete" onclick="deleteTicket('{{ inPro.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
+      <div class="ticket-edit" onclick="editTicket('{{inPro.id}}',2)"><img  src="{% static 'img/edit16.png' %}"></div>
+      <div class="ticket-delete" onclick="deleteTicket('{{inPro.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
     {% endfor %}
     <!-- Tickets in List InProgress --> 
@@ -108,12 +108,12 @@
       <span>Users: 
         <span id="tickettouser{{awFeed.id}}" class="colortext">
           {% for user in awFeed.ticket_to_user.all %}
-          {{ user.id }}, 
+          <span id="tickettouser{{awFeed.id}}-{{ user.id }}" class="colortext">{{ user.username }}</span>
           {% endfor %}
         </span>
       </span>
-      <div class="ticket-edit" onclick="editTicket('{{ awFeed.id}}',3)"><img  src="{% static 'img/edit16.png' %}"></div>
-      <div class="ticket-delete" onclick="deleteTicket('{{ awFeed.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
+      <div class="ticket-edit" onclick="editTicket('{{awFeed.id}}',3)"><img  src="{% static 'img/edit16.png' %}"></div>
+      <div class="ticket-delete" onclick="deleteTicket('{{awFeed.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
     {% endfor %}
     <!-- Tickets in List AwaitingFeedback --> 
@@ -131,12 +131,12 @@
       <span>Users:
         <span id="tickettouser{{done.id}}" class="colortext">
           {% for user in done.ticket_to_user.all %}
-          {{ user.id }}, 
+          <span id="tickettouser{{done.id}}-{{ user.id }}" class="colortext">{{ user.username }}</span>
           {% endfor %}
         </span>
       </span>
-      <div class="ticket-edit" onclick="editTicket('{{ done.id}}',4)"><img  src="{% static 'img/edit16.png' %}"></div>
-      <div class="ticket-delete" onclick="deleteTicket('{{ done.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
+      <div class="ticket-edit" onclick="editTicket('{{done.id}}',4)"><img  src="{% static 'img/edit16.png' %}"></div>
+      <div class="ticket-delete" onclick="deleteTicket('{{done.id}}')"><img  src="{% static 'img/delete16.png' %}"></div>
     </div>
     {% endfor %}
    <!-- Tickets in List Done --> 
@@ -145,13 +145,21 @@
 
  <!-- Invisible Pop-Up to update Ticket --> 
 <div id="board-popup" class="d-none">
-<div class="board-popup-center" id='1111'>
+<div class="board-popup-center">
   <div class="board-popup-ticket">
   <div class="board-popup-ticket-close" onclick="closeTicket()"><img  src="{% static 'img/close48.png' %}"></div>  
   <span>Title:</span> <input id="ticket_title" type="text">
   <span>Description:</span> <input id="ticket_description" type="text">
   <span>Created at:</span> <input id="ticket_created_at" type="date">
   <span>Due date:</span> <input id="ticket_duedate" type="date">
+
+  <span>List:</span> 
+  <select id="ticket_list">
+    <option value="1">To do</option>
+    <option value="2">In progress</option>
+    <option value="3">Awaiting feedback</option>
+    <option value="4">Done</option>
+  </select>
 
   <span>Priority:</span> 
   <select id="ticket_prio">
@@ -162,28 +170,29 @@
 
   <span>Users:</span>
   <ul id="ticket_to_user" class="demo-list-control mdl-list">
+    {% for user in users %}
     <!--User-List-Element-->
     <li class="mdl-list__item">
       <span class="mdl-list__item-primary-content">
         <i class="material-icons  mdl-list__item-avatar">person</i>
-        Bryan Cranston
+        {{ user.username }}
       </span>
       <span class="mdl-list__item-secondary-action">
         <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-1">
-          <input type="checkbox" id="list-checkbox-1" class="mdl-checkbox__input" checked />
+          <input type="checkbox" id="user-{{ user.id }}" class="mdl-checkbox__input"/>
         </label>
       </span>
     </li>
     <!--User-List-Element-->
+    {% endfor %}
    </ul>
 
   <div class="board-popup-ticket-delete-save">
-    <div onclick="saveTicket('1111')"><img  src="{% static 'img/save48.png' %}"></div>
-    <div onclick="deleteTicket('1111')"><img  src="{% static 'img/delete48.png' %}"></div>
+    <div onclick="saveTicket()"><img  src="{% static 'img/save48.png' %}"></div>
+    <div onclick="deleteTicket()"><img  src="{% static 'img/delete48.png' %}"></div>
   </div>
   </div>
-<div id="invListId" class="d-none"></div>
-<div id="invTicketId" class="d-none"></div>    
+   
 </div>
 </div>
  <!-- Invisible Pop-Up to update Ticket --> 

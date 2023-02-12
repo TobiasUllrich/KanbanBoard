@@ -86,28 +86,29 @@ class TicketViewSet(viewsets.ModelViewSet):
      inProgress = Ticket.objects.filter(ticket_list=2)
      awaitingFeedback = Ticket.objects.filter(ticket_list=3)
      dones = Ticket.objects.filter(ticket_list=4)
+     users = User.objects.all()
     #  changeDate(toDos)
     #  changeDate(inProgress)
     #  changeDate(awaitingFeedback)
     #  changeDate(dones)
 
      for i, d in enumerate(toDos):
-      toDos[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
-      toDos[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d') 
+      toDos[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
+      toDos[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y') 
      for i, d in enumerate(inProgress):
-      inProgress[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
-      inProgress[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+      inProgress[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
+      inProgress[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
      for i, d in enumerate(awaitingFeedback):
-      awaitingFeedback[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
-      awaitingFeedback[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+      awaitingFeedback[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
+      awaitingFeedback[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
      for i, d in enumerate(dones):
-      dones[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
-      dones[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+      dones[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
+      dones[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
 
     #  print(serializers.serialize('json', [dones [0], ]))
     #  print(dones [1])
     #  print(dones [2])
-     return render(request, 'board/board.html', {'toDos': toDos,'inProgress':inProgress,'awaitingFeedback':awaitingFeedback,'dones':dones})
+     return render(request, 'board/board.html', {'toDos': toDos,'inProgress':inProgress,'awaitingFeedback':awaitingFeedback,'dones':dones,'users':users})
 
 
     def create(self, request): #POST
