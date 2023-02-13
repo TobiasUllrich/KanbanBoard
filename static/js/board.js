@@ -33,8 +33,7 @@ async function moveTo(newListId, newContainerId) {
     //console.log('Ziel ist Element mit id: ',newListId);
 
     //PUT-REQUEST
-    await changeList(currentDraggedElement.id, newListId);
-    await putReq(newListId)
+    await sendRequest(currentDraggedElement.id, newListId);
 
     placeTicketInAnotherList(newContainerId);
     removeTicketFromFormerList();
@@ -337,7 +336,7 @@ const monthNames = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug
 /**
  * Sends a Message to the chat
  */
-async function changeList(ticketId, listId) {
+async function sendRequest(ticketId, listId) {
   let fd = getDataFromMessageForm(ticketId, listId);
   //let messageContainerSaved = messageContainer.innerHTML;
   //let dateOfPost = giveActualDate(); //Get actual Date
@@ -346,6 +345,7 @@ async function changeList(ticketId, listId) {
     //showLoadingAnimation(dateOfPost,username,messageField.value,'gray','gray','deleteMessage',messageContainerSaved);
     let json = await waitingForServerResponse(fd);
     //showSendingMessageSuccessful(`[${transformDateIntoWishedFormat(jsonparsed.fields.created_at)}]`,jsonparsed.fields.author['0'],jsonparsed.fields.text,'gray','black','',messageContainerSaved);
+    console.log(json);
   }
   catch (e) {
     console.log(e);

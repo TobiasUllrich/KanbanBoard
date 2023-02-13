@@ -2,14 +2,17 @@ from django.shortcuts import render, redirect
 from django.core import serializers #Um den Serializer von Django benutzen zu können
 from django.contrib.auth import authenticate, login, logout #Für den Login & Logout
 from django.contrib.auth.decorators import login_required #Für Login
-from rest_framework import viewsets, permissions, authentication, exceptions #Um die Viewsets des REST-Frameworks benutzen zu können
+from django.http import HttpResponseRedirect, JsonResponse #Zum Weiterleiten
+
 from .serializers import UsersSerializer, ListsSerializer, TicketsSerializer #Um den Serializer aus serializers.py benutzen zu können
 from django.http import HttpResponse #Um das HttpResponseObjekt nutzen zu können
 from django.contrib.auth.models import User #Model User wird importiert
 from .models import List, Ticket, TicketToUser #Models Board & Tickets werden importiert
-from django.http import HttpResponseRedirect, JsonResponse #Zum Weiterleiten
 import datetime #Um Datum umzuwandeln
 
+from rest_framework.response import Response
+from rest_framework import viewsets, permissions, authentication, status #Um die Viewsets des REST-Frameworks benutzen zu können
+from rest_framework.views import APIView
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -17,8 +20,9 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('id')
     serializer_class = UsersSerializer
-    permission_classes = [] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
-    authentication_classes =[]
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
+    #authentication_classes =[authentication.TokenAuthentication]
+
 
     def create(self, request): #POST
         newUser = User.objects.create_user(username= request.data.get('username'),
@@ -31,103 +35,6 @@ class UserViewSet(viewsets.ModelViewSet):
         return HttpResponse(serialized_obj, content_type='application/json')
 
 
-class TicketViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows tickets to be viewed or edited.
-    """
-    
-    #If GET-Request: We receive a Queryset
-    queryset = Ticket.objects.all().order_by('id')
-    serializer_class = TicketsSerializer
-    #permission_classes = [permissions.IsAuthenticatedOrReadOnly] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
-    #authentication_classes =[authentication.SessionAuthentication]
-    
-    # def handle_exception(self):
-    #     return HttpResponseRedirect('/login/')
-
-
-
-
-    def put(self, request): #PUT
-     print('UPDATE SOLLTE PERFORMED WERDEN ', Ticket.objects.get(id=request.data.get('id')))
-     ObjectToUpdate = Ticket.objects.get(id=request.data.get('id'))
-     ObjectToUpdate.ticket_description = request.data.get('ticket_description')
-     ObjectToUpdate.ticket_title= request.data.get('ticket_title')
-     ObjectToUpdate.ticket_duedate= request.data.get('ticket_duedate')
-     ObjectToUpdate.ticket_prio= request.data.get('ticket_prio')
-     ObjectToUpdate.ticket_created_at= request.data.get('ticket_created_at')
-
-     getListInstance=List.objects.get(id=request.data.get('ticket_list'))
-     ObjectToUpdate.ticket_list = getListInstance #ForeignKey; List-Instance needed???
-
-     userinstancearray=[]
-     for item in request.data.get('ticket_to_user'):
-         print('UserID ',item)
-         userinstancearray.append(User.objects.get(id=item))
-     ObjectToUpdate.ticket_to_user.set(userinstancearray) #ManyToMany; User-Instance needed
-
-     ObjectToUpdate.save()
-     return render(request, 'board/board.html', {'tickets': Ticket.objects.all()})
-
-    def delete(self, request): #DELETE
-     print('DELETE SOLLTE PERFORMED WERDEN ')
-     ObjectToBeDeleted = Ticket.objects.get(id=request.data.get('id'))
-     ObjectToBeDeleted.delete()
-     return JsonResponse({"Deleted": True})
-    
-    # def changeDate(qryset):
-    #  for i, d in enumerate(qryset):
-    #   qryset[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
-    #   qryset[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
-
-    def list(self, request): #GET
-     print('GET SOLLTE PERFORMED WERDEN ')
-     toDos = Ticket.objects.filter(ticket_list=1)
-     inProgress = Ticket.objects.filter(ticket_list=2)
-     awaitingFeedback = Ticket.objects.filter(ticket_list=3)
-     dones = Ticket.objects.filter(ticket_list=4)
-     users = User.objects.all()
-    #  changeDate(toDos)
-    #  changeDate(inProgress)
-    #  changeDate(awaitingFeedback)
-    #  changeDate(dones)
-
-     for i, d in enumerate(toDos):
-      toDos[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
-      toDos[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y') 
-     for i, d in enumerate(inProgress):
-      inProgress[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
-      inProgress[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
-     for i, d in enumerate(awaitingFeedback):
-      awaitingFeedback[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
-      awaitingFeedback[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
-     for i, d in enumerate(dones):
-      dones[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
-      dones[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
-
-    #  print(serializers.serialize('json', [dones [0], ]))
-    #  print(dones [1])
-    #  print(dones [2])
-     return render(request, 'board/board.html', {'toDos': toDos,'inProgress':inProgress,'awaitingFeedback':awaitingFeedback,'dones':dones,'users':users})
-
-
-    def create(self, request): #POST
-        print('POST SOLLTE PERFORMED WERDEN')
-
-        userinstancearray=[]
-        for item in request.data.get('ticket_to_user'):
-         print('UserID ',item)
-         userinstancearray.append(User.objects.get(id=item))
-         print(userinstancearray)
-        newTicket = Ticket.objects.create(ticket_description = request.data.get('ticket_description'),
-                                           ticket_title= request.data.get('ticket_title'),
-                                           ticket_duedate= request.data.get('ticket_duedate'),
-                                           ticket_prio= request.data.get('ticket_prio'),
-                                           ticket_created_at= request.data.get('ticket_created_at'),
-                                           ticket_list=List.objects.get(id=request.data.get('ticket_list')), #ForeignKey; List-Instance needed???  
-                                           )                           
-        newTicket.ticket_to_user.set(userinstancearray) #ManyToMany; User-Instance needed
-        return render(request, 'board/board.html', {'tickets': Ticket.objects.all()})
 
 class ListViewSet(viewsets.ModelViewSet):
     """
@@ -142,6 +49,134 @@ class ListViewSet(viewsets.ModelViewSet):
         newList = List.objects.create(list_name= request.data.get('list_name'),)
         serialized_obj = serializers.serialize('json', [newList, ]) # We have to transform our created object into JSON via a serializer 
         return HttpResponse(serialized_obj, content_type='application/json')
+
+
+
+# class TicketViewSet(viewsets.ModelViewSet):
+#     """
+#     API endpoint that allows tickets to be viewed or edited.
+#     """
+    
+#     #If GET-Request: We receive a Queryset
+#     queryset = Ticket.objects.all().order_by('id')
+#     serializer_class = TicketsSerializer
+#     permission_classes = [permissions.IsAuthenticatedOrReadOnly] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
+#     authentication_classes =[authentication.TokenAuthentication]
+
+    # def handle_exception(self):
+    #     return HttpResponseRedirect('/login/')
+
+
+
+
+#     def put(self, request): #PUT
+#      print('UPDATE SOLLTE PERFORMED WERDEN ', Ticket.objects.get(id=request.data.get('id')))
+#      ObjectToUpdate = Ticket.objects.get(id=request.data.get('id'))
+#      ObjectToUpdate.ticket_description = request.data.get('ticket_description')
+#      ObjectToUpdate.ticket_title= request.data.get('ticket_title')
+#      ObjectToUpdate.ticket_duedate= request.data.get('ticket_duedate')
+#      ObjectToUpdate.ticket_prio= request.data.get('ticket_prio')
+#      ObjectToUpdate.ticket_created_at= request.data.get('ticket_created_at')
+
+#      getListInstance=List.objects.get(id=request.data.get('ticket_list'))
+#      ObjectToUpdate.ticket_list = getListInstance #ForeignKey; List-Instance needed???
+
+#      userinstancearray=[]
+#      for item in request.data.get('ticket_to_user'):
+#          print('UserID ',item)
+#          userinstancearray.append(User.objects.get(id=item))
+#      ObjectToUpdate.ticket_to_user.set(userinstancearray) #ManyToMany; User-Instance needed
+
+#      ObjectToUpdate.save()
+#      return render(request, 'board/board.html', {'tickets': Ticket.objects.all()})
+
+#     def delete(self, request): #DELETE
+#      print('DELETE SOLLTE PERFORMED WERDEN ')
+#      ObjectToBeDeleted = Ticket.objects.get(id=request.data.get('id'))
+#      ObjectToBeDeleted.delete()
+#      return JsonResponse({"Deleted": True})
+    
+#     # def changeDate(qryset):
+#     #  for i, d in enumerate(qryset):
+#     #   qryset[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
+#     #   qryset[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+
+
+
+
+#     def create(self, request): #POST
+#         print('POST SOLLTE PERFORMED WERDEN')
+
+#         userinstancearray=[]
+#         for item in request.data.get('ticket_to_user'):
+#          print('UserID ',item)
+#          userinstancearray.append(User.objects.get(id=item))
+#          print(userinstancearray)
+#         newTicket = Ticket.objects.create(ticket_description = request.data.get('ticket_description'),
+#                                            ticket_title= request.data.get('ticket_title'),
+#                                            ticket_duedate= request.data.get('ticket_duedate'),
+#                                            ticket_prio= request.data.get('ticket_prio'),
+#                                            ticket_created_at= request.data.get('ticket_created_at'),
+#                                            ticket_list=List.objects.get(id=request.data.get('ticket_list')), #ForeignKey; List-Instance needed???  
+#                                            )                           
+#         newTicket.ticket_to_user.set(userinstancearray) #ManyToMany; User-Instance needed
+#         return render(request, 'board/board.html', {'tickets': Ticket.objects.all()})
+
+
+class TicketViewSet(viewsets.ModelViewSet):
+  
+    queryset = Ticket.objects.all().order_by('id')
+    serializer_class = TicketsSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
+    authentication_classes =[authentication.TokenAuthentication]
+
+    def put(self, request, pk, format=None): #PUT
+     print('UPDATE SOLLTE PERFORMED WERDEN ')
+     ticket = self.get_object(pk)
+     serializer = TicketsSerializer(ticket, data=request.data)
+     if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+@login_required(login_url='/login/') #board is only accessible if logged in, otherwise you will get redirected to login
+def board_view(request):
+ """
+  This is a view that allows tickets to be viewed
+ """
+ print('GET SOLLTE PERFORMED WERDEN ')
+ toDos = Ticket.objects.filter(ticket_list=1)
+ inProgress = Ticket.objects.filter(ticket_list=2)
+ awaitingFeedback = Ticket.objects.filter(ticket_list=3)
+ dones = Ticket.objects.filter(ticket_list=4)
+ users = User.objects.all()
+    #  changeDate(toDos)
+    #  changeDate(inProgress)
+    #  changeDate(awaitingFeedback)
+    #  changeDate(dones)
+
+ for i, d in enumerate(toDos):
+   toDos[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
+   toDos[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y') 
+ for i, d in enumerate(inProgress):
+   inProgress[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
+   inProgress[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
+ for i, d in enumerate(awaitingFeedback):
+   awaitingFeedback[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
+   awaitingFeedback[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
+ for i, d in enumerate(dones):
+   dones[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
+   dones[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
+
+    #  print(serializers.serialize('json', [dones [0], ]))
+    #  print(dones [1])
+    #  print(dones [2])
+ return render(request, 'board/board.html', {'toDos': toDos,'inProgress':inProgress,'awaitingFeedback':awaitingFeedback,'dones':dones,'users':users})
 
 
 def register_view(request):
