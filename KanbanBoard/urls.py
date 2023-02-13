@@ -19,7 +19,6 @@ from django.urls import path, include #include for Django-REST-Framework
 from rest_framework import routers #for routing with Django-REST-Framework
 from Board.views import register_view, login_view, logout_view, board_view
 from Board.views import UserViewSet, ListViewSet, TicketViewSet #viewset is in our Board-App
-from Board import views
 
 
 # To register a View under a URL
