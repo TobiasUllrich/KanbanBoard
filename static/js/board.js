@@ -1,3 +1,5 @@
+loadDataForHTML(); //When the HTML-Page is loaded
+let containerIDs = ['todo','inprogress','awaitingfeedback','done']; //Corresponding Container IDs for List IDs
 let currentDraggedElement; //Saves the currently dragged HTML-Element
 let parentElementofDraggedElement; //Saves the parent of the currently dragged HTML-Element
 let actTicketId; //Saves the id of the currently opened ticket
@@ -33,7 +35,9 @@ async function moveTo(newListId, newContainerId) {
     //console.log('Ziel ist Element mit id: ',newListId);
 
     //PUT-REQUEST
-    await sendRequest(currentDraggedElement.id, newListId);
+    //await sendRequest(currentDraggedElement.id, newListId);
+    let ticketsFromServer = await sendRequest('PUT','/tickets/',currentDraggedElement.id, newListId);
+    console.log(ticketsFromServer.json());
 
     placeTicketInAnotherList(newContainerId);
     removeTicketFromFormerList();
@@ -280,6 +284,7 @@ function updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,
     document.getElementById(`tickettouser${ticketId}`).innerHTML+=`
     <span id="${id}" class="colortext">${usersName[i]}</span>`;
   }
+
 }
 
 function saveTicket() {
@@ -303,13 +308,32 @@ function saveTicket() {
   console.log('Users-ID ', result.val1 );
   usersName = result.val2;
   console.log('Users-Wert ', result.val2);
-  console.log('POST-REQUEST OR PUT-REQUEST');
+  
   //MUSS UNBEDINGT NOCH IM HTML-CODE GEÄNDERT WERDEN IN DER TICKET-BOX
   if(actTicketId == ''){
-    createTicket();
+    let tickettouser=[];
+    for (i=0;i<result.val1.length;i++){
+      tickettouser.push({"id": result.val1[i], "username": result.val2[i]});
+    }
+
+    task={
+      "id": 111111, //ACHTUNG DUMMY ID
+      ticket_created_at: document.getElementById('ticket_created_at').value,
+      ticket_description: document.getElementById('ticket_description').value,
+      ticket_duedate: document.getElementById('ticket_duedate').value,
+      ticket_list: actListId,
+      ticket_prio: getValueOfSelectedIteminDropDownField('ticket_prio'),
+      ticket_title: document.getElementById('ticket_title').value,
+      ticket_to_user: tickettouser
+    }
+    //console.log(task);
+    renderTask(task);
+    renderUsersOfTask(task);
+    console.log('POST-REQUEST');
   }
   else{
     updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,usersName);
+    console.log('PUT-REQUEST');
   }
     closeTicket();
 }
@@ -324,6 +348,75 @@ function deleteTicket(ticketId = actTicketId) { //Use actTicket if no ticketId i
 }
 
 
+async function loadDataForHTML(){
+  let ticketsFromServer = await sendRequest('GET','/tickets/');
+  renderTickets(ticketsFromServer);
+  let usersFromServer = await sendRequest('GET','/users/');
+  renderUsers(usersFromServer);
+};
+
+
+function renderTickets(jsonFromServer){
+  console.log(jsonFromServer);
+  for(i=0;i<jsonFromServer.length;i++){
+    renderTask(jsonFromServer[i]);
+    renderUsersOfTask(jsonFromServer[i]);
+  }
+}
+
+function renderTask(singleTask){
+  console.log('Das brauche ich als single Task ', singleTask);
+containerId=containerIDs[singleTask.ticket_list-1];
+ticketId=singleTask.id;
+title=singleTask.ticket_title;
+description=singleTask.ticket_description;
+createdAt=singleTask.ticket_created_at;
+dueDate=singleTask.ticket_duedate;
+prio=singleTask.ticket_prio;
+listId=singleTask.ticket_list;
+ticketToUser=singleTask.ticket_to_user;
+
+document.getElementById(containerId).innerHTML+=`
+<div class="ticket" id="${ticketId}" draggable="true" ondragstart="startDragging(${ticketId})">
+  <span>Title: <span id="title${ticketId}" class="colortext">${title}</span></span>
+  <span>Description: <span id="description${ticketId}" class="colortext">${description}</span></span> 
+  <span>Created at: <span id="createdat${ticketId}" class="colortext">${switchYearAndDayOfDate(createdAt,'-')}</span></span>
+  <span>Due date: <span id="duedate${ticketId}" class="colortext">${switchYearAndDayOfDate(dueDate,'-')}</span></span>
+  <span>Priority: <span id="prio${ticketId}" class="colortext">${prio}</span></span>
+  <span>Users: 
+    <span id="tickettouser${ticketId}" class="colortext"></span>
+  </span>
+  <div class="ticket-edit" onclick="editTicket('${ticketId}',${listId})"><img  src="{% static 'img/edit16.png' %}"></div>
+  <div class="ticket-delete" onclick="deleteTicket(${ticketId})"><img  src="{% static 'img/delete16.png' %}"></div>
+</div>
+`;
+}
+
+function renderUsersOfTask(singleTask){
+ticketId=singleTask.id;
+ticketToUser=singleTask.ticket_to_user;
+for(j=0;j<ticketToUser.length;j++){
+  document.getElementById(`tickettouser${ticketId}`).innerHTML+=`
+  <span id="tickettouser${ticketId}-${ticketToUser[j].id}" class="colortext">${ticketToUser[j].username}</span>`;
+};
+}
+
+function renderUsers(usersFromServer){
+  for(j=0;j<usersFromServer.length;j++){
+    document.getElementById('ticket_to_user').innerHTML+=`
+    <li class="mdl-list__item">
+    <span class="mdl-list__item-primary-content">
+      <i class="material-icons  mdl-list__item-avatar">person</i>
+      <b id='username-${usersFromServer[j].id}'>${usersFromServer[j].username}</b>
+    </span>
+    <span class="mdl-list__item-secondary-action">
+      <label onclick="selectUser('user-${usersFromServer[j].id}')" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="list-checkbox-1">
+        <input type="checkbox" id="user-${usersFromServer[j].id}" class="mdl-checkbox__input"/>
+      </label>
+    </span>
+  </li>`;
+  };
+}
 
 
 
@@ -336,16 +429,17 @@ const monthNames = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug
 /**
  * Sends a Message to the chat
  */
-async function sendRequest(ticketId, listId) {
+async function sendRequest(method, url, ticketId, listId) {
+  console.log(method,' ', url,' TicketId: ', ticketId,' Neue ListenId: ', listId);
   let fd = getDataFromMessageForm(ticketId, listId);
   //let messageContainerSaved = messageContainer.innerHTML;
   //let dateOfPost = giveActualDate(); //Get actual Date
 
   try {
     //showLoadingAnimation(dateOfPost,username,messageField.value,'gray','gray','deleteMessage',messageContainerSaved);
-    let json = await waitingForServerResponse(fd);
+    return await waitingForServerResponse(method,url,fd,ticketId);
     //showSendingMessageSuccessful(`[${transformDateIntoWishedFormat(jsonparsed.fields.created_at)}]`,jsonparsed.fields.author['0'],jsonparsed.fields.text,'gray','black','',messageContainerSaved);
-    console.log(json);
+    //console.log(json);
   }
   catch (e) {
     console.log(e);
@@ -361,7 +455,7 @@ function getDataFromMessageForm(ticketId, listId) {
   let fd = new FormData();
   fd.append('id', ticketId);
   fd.append('ticket_list', listId);
-  fd.append('csrfmiddlewaretoken', token);
+  fd.append('csrfmiddlewaretoken', 'bba75e9f47dc83ccea62aee1904a78136837a184');
   console.log(ticketId, listId, token);
   return fd;
 }
@@ -371,19 +465,20 @@ function getDataFromMessageForm(ticketId, listId) {
  * @param {Object} fd 
  * @returns a parsed JSON
  */
-async function waitingForServerResponse(fd) {
-  let response = await fetch('/board/', {
-    method: 'PUT',
-    body: fd
-    // headers: {
-    //   "Authorization": "Bearer YOUR_ACCESS_TOKEN",
-    //   "Content-Type": "application/json"
-    // }
-    //headers = {'Authorization': f'Token {token}'}
-    // headers: {
-    //   'Authorization': `Token ${token}`
-    // }
-  });
+async function waitingForServerResponse(method,url,fd,ticketId) {
+    let response;
+
+  if(method=='GET'){
+    response = await fetch(`${url}`, {method: method});
+  }
+  else if(method=='POST'){
+    response = await fetch(`${url}`, {method: method, body: fd});
+  }
+  else{
+    response = await fetch(`${url}${ticketId}/`, {method: method, body: fd});
+  }
+  
+
 
   let json = await response.json();
   //let jsonparsed = JSON.parse(json);

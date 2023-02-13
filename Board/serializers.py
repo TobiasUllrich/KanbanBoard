@@ -8,7 +8,7 @@ class UsersSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = ['id','username','first_name','last_name','email','password']
-
+        required = ['id', 'username']
 
 #Lists-Serializer (defines the API)
 class ListsSerializer(serializers.HyperlinkedModelSerializer):
@@ -21,9 +21,10 @@ class ListsSerializer(serializers.HyperlinkedModelSerializer):
 #Tickets-Serializer (defines the API)
 class TicketsSerializer(serializers.HyperlinkedModelSerializer):
     ticket_list = serializers.PrimaryKeyRelatedField(queryset=List.objects.all()) #ForeignKey-Field which contains a single List
-    ticket_to_user = UsersSerializer(many=True) #ManyToMany-Field which contains an Array of Users
-    
+    ticket_to_user = UsersSerializer(many=True) #ManyToMany-Field which contains an Array of User
+
     class Meta:
         model = Ticket
         fields = ['id','ticket_description','ticket_title','ticket_duedate','ticket_prio','ticket_created_at','ticket_list','ticket_to_user']
+        required = ['id', 'ticket_list'] #What is required for PUT,DELETE,POST-REquests
                                                                                                                        

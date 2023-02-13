@@ -13,7 +13,7 @@ import datetime #Um Datum umzuwandeln
 from rest_framework.response import Response
 from rest_framework import viewsets, permissions, authentication, status #Um die Viewsets des REST-Frameworks benutzen zu können
 from rest_framework.views import APIView
-
+from rest_framework.authtoken.models import Token
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -21,8 +21,8 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('id')
     serializer_class = UsersSerializer
-    #permission_classes = [permissions.IsAuthenticatedOrReadOnly] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
-    #authentication_classes =[authentication.TokenAuthentication]
+    permission_classes = [permissions.AllowAny]
+    authentication_classes =[authentication.TokenAuthentication]
 
 
     def create(self, request): #POST
@@ -44,79 +44,68 @@ class ListViewSet(viewsets.ModelViewSet):
     #If GET-Request: We receive a Queryset
     queryset = List.objects.all().order_by('id')
     serializer_class = ListsSerializer
-    permission_classes = [] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
+    authentication_classes =[authentication.TokenAuthentication]
 
     def create(self, request): #POST
         newList = List.objects.create(list_name= request.data.get('list_name'),)
         serialized_obj = serializers.serialize('json', [newList, ]) # We have to transform our created object into JSON via a serializer 
         return HttpResponse(serialized_obj, content_type='application/json')
 
-
-
-class TicketViewSet(viewsets.ModelViewSet):
+class TicketAPI(APIView):
     """
-    API endpoint that allows tickets to be viewed or edited.
+    List all tickets, or create a new ticket.
     """
-    
-    #If GET-Request: We receive a Queryset
-    queryset = Ticket.objects.all().order_by('id')
-    serializer_class = TicketsSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly] #Zugriffsrechte falls gewünscht [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     authentication_classes =[authentication.TokenAuthentication]
 
-    def handle_exception(self):
-        return HttpResponseRedirect('/login/')
+    def get(self, request, format=None):
+        print('GET SOLLTE PERFORMED WERDEN ')
+        tickets = Ticket.objects.all()
+        serializer = TicketsSerializer(tickets, many=True)
+        return Response(serializer.data)
 
-    def put(self, request): #PUT
-     print('UPDATE SOLLTE PERFORMED WERDEN ', Ticket.objects.get(id=request.data.get('id')))
-     ObjectToUpdate = Ticket.objects.get(id=request.data.get('id'))
-     ObjectToUpdate.ticket_description = request.data.get('ticket_description')
-     ObjectToUpdate.ticket_title= request.data.get('ticket_title')
-     ObjectToUpdate.ticket_duedate= request.data.get('ticket_duedate')
-     ObjectToUpdate.ticket_prio= request.data.get('ticket_prio')
-     ObjectToUpdate.ticket_created_at= request.data.get('ticket_created_at')
+    def post(self, request, format=None):
+        print('POST SOLLTE PERFORMED WERDEN ')
+        serializer = TicketsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-     getListInstance=List.objects.get(id=request.data.get('ticket_list'))
-     ObjectToUpdate.ticket_list = getListInstance #ForeignKey; List-Instance needed???
-
-     userinstancearray=[]
-     for item in request.data.get('ticket_to_user'):
-         print('UserID ',item)
-         userinstancearray.append(User.objects.get(id=item))
-     ObjectToUpdate.ticket_to_user.set(userinstancearray) #ManyToMany; User-Instance needed
-
-     ObjectToUpdate.save()
-     return render(request, 'board/board.html', {'tickets': Ticket.objects.all()})
-
-    def delete(self, request): #DELETE
-     print('DELETE SOLLTE PERFORMED WERDEN ')
-     ObjectToBeDeleted = Ticket.objects.get(id=request.data.get('id'))
-     ObjectToBeDeleted.delete()
-     return JsonResponse({"Deleted": True})
+class TicketAPIDetail(APIView):
+    """
+    Retrieve, update or delete a ticket instance.
+    """
+    permission_classes = [permissions.AllowAny]
+    authentication_classes =[authentication.TokenAuthentication]
     
-    # def changeDate(qryset):
-    #  for i, d in enumerate(qryset):
-    #   qryset[i].ticket_duedate = d.ticket_duedate.strftime('%Y-%m-%d')
-    #   qryset[i].ticket_created_at = d.ticket_created_at.strftime('%Y-%m-%d')
+    def get_object(self, pk):
+        try:
+            return Ticket.objects.get(pk=pk)
+        except Ticket.DoesNotExist:
+            raise Http404
 
+    def get(self, request, pk, format=None):
+     print('GET-DETAIL SOLLTE PERFORMED WERDEN ')
+     snippet = self.get_object(pk)
+     serializer = TicketsSerializer(snippet)
+     return Response(serializer.data)
 
-    def create(self, request): #POST
-        print('POST SOLLTE PERFORMED WERDEN')
+    def put(self, request, pk, format=None): #PUT
+     print('PUT SOLLTE PERFORMED WERDEN ')
+     ticket = self.get_object(pk)
+     serializer = TicketsSerializer(ticket, data=request.data)
+     if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        userinstancearray=[]
-        for item in request.data.get('ticket_to_user'):
-         print('UserID ',item)
-         userinstancearray.append(User.objects.get(id=item))
-         print(userinstancearray)
-        newTicket = Ticket.objects.create(ticket_description = request.data.get('ticket_description'),
-                                           ticket_title= request.data.get('ticket_title'),
-                                           ticket_duedate= request.data.get('ticket_duedate'),
-                                           ticket_prio= request.data.get('ticket_prio'),
-                                           ticket_created_at= request.data.get('ticket_created_at'),
-                                           ticket_list=List.objects.get(id=request.data.get('ticket_list')), #ForeignKey; List-Instance needed???  
-                                           )                           
-        newTicket.ticket_to_user.set(userinstancearray) #ManyToMany; User-Instance needed
-        return render(request, 'board/board.html', {'tickets': Ticket.objects.all()})
+    def delete(self, request, pk, format=None):
+        print('DELETE SOLLTE PERFORMED WERDEN ')
+        ticket = self.get_object(pk)
+        ticket.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
@@ -126,35 +115,8 @@ def board_view(request):
  """
   This is a view that allows tickets to be viewed
  """
- print('GET SOLLTE PERFORMED WERDEN ')
- toDos = Ticket.objects.filter(ticket_list=1)
- inProgress = Ticket.objects.filter(ticket_list=2)
- awaitingFeedback = Ticket.objects.filter(ticket_list=3)
- dones = Ticket.objects.filter(ticket_list=4)
- users = User.objects.all()
-    #  changeDate(toDos)
-    #  changeDate(inProgress)
-    #  changeDate(awaitingFeedback)
-    #  changeDate(dones)
-
- for i, d in enumerate(toDos):
-   toDos[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
-   toDos[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y') 
- for i, d in enumerate(inProgress):
-   inProgress[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
-   inProgress[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
- for i, d in enumerate(awaitingFeedback):
-   awaitingFeedback[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
-   awaitingFeedback[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
- for i, d in enumerate(dones):
-   dones[i].ticket_duedate = d.ticket_duedate.strftime('%d-%m-%Y')
-   dones[i].ticket_created_at = d.ticket_created_at.strftime('%d-%m-%Y')
-
-    #  print(serializers.serialize('json', [dones [0], ]))
-    #  print(dones [1])
-    #  print(dones [2])
- return render(request, 'board/board.html', {'toDos': toDos,'inProgress':inProgress,'awaitingFeedback':awaitingFeedback,'dones':dones,'users':users})
-
+ return render(request, 'board/board.html')
+ 
 
 def register_view(request):
  """
@@ -168,7 +130,6 @@ def register_view(request):
    return JsonResponse({"Registered": True}) #returns JSON, without key
  return render(request, 'register/register.html') #GET-Request
 
-
 def login_view(request):
     """
      This is a view to login the user if not logged in, otherwise redirects to Board-HTML
@@ -178,12 +139,14 @@ def login_view(request):
        if user != 'None': 
            #User authenticated/registered (username & password are correct)
            login(request,user) #Logs in the User
+           token = Token.objects.get_or_create(user=user)
+           print('TOKENNNNNNNNNNNNNNNN ', token)
+           print('TOKEN vom User-Objekt ', user.auth_token.key)
            return JsonResponse({"LoggedIn": True, "RedirectTo": '/board/'})
        else: 
            #User not authenticated/registered (username or password is not correct)
            return JsonResponse({"LoggedIn": False, "RedirectTo": '/login/'})
     return render(request, 'login/login.html') #GET-Request
-
 
 def logout_view(request):
  """
