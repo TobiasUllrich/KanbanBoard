@@ -7,8 +7,7 @@ class UsersSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id','username','first_name','last_name','email','password']
-        required = ['id', 'username']
+        fields = ['id','username']
 
 #Lists-Serializer (defines the API)
 class ListsSerializer(serializers.HyperlinkedModelSerializer):
@@ -26,5 +25,4 @@ class TicketsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Ticket
         fields = ['id','ticket_description','ticket_title','ticket_duedate','ticket_prio','ticket_created_at','ticket_list','ticket_to_user']
-        required = ['id', 'ticket_list'] #What is required for PUT,DELETE,POST-REquests
                                                                                                                        

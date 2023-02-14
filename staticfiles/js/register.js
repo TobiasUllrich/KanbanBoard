@@ -24,9 +24,9 @@ async function register() {
  */
 function getDataFromRegisterForm() {
   let fd = new FormData();
-  fd.append('username', username.value);
-  fd.append('password1', password1.value);
-  fd.append('password2', password2.value);
+  fd.append('username', document.getElementById('username').value);
+  fd.append('password1', document.getElementById('password1').value);
+  fd.append('password2', document.getElementById('password2').value);
   fd.append('csrfmiddlewaretoken', token);
   return fd;
 }
@@ -91,9 +91,9 @@ function showUserAlreadyExisting() {
  * Clears Input-Fields after registration
  */
 function emptyInputfields() {
-  username.value = "";
-  password1.value = "";
-  password2.value = "";
+  document.getElementById('username').value = "";
+  document.getElementById('password1').value = "";
+  document.getElementById('password2').value = "";
   username.placeholder = "Username";
   password1.placeholder = "Password";
   password2.placeholder = "Password";

@@ -36,8 +36,11 @@ async function moveTo(newListId, newContainerId) {
 
     //PUT-REQUEST
     //await sendRequest(currentDraggedElement.id, newListId);
-    let ticketsFromServer = await sendRequest('PUT','/tickets/',currentDraggedElement.id, newListId);
-    console.log(ticketsFromServer.json());
+    task={
+      "id": currentDraggedElement.id,
+      "ticket_list": newListId
+    }
+    let ticketsFromServer = await sendRequest('PUT','/tickets/',task);
 
     placeTicketInAnotherList(newContainerId);
     removeTicketFromFormerList();
@@ -287,71 +290,89 @@ function updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,
 
 }
 
-function saveTicket() {
+function collectTicketData(){
   ticketId=actTicketId;
-  console.log('TicketNummer ', actTicketId);
+  //console.log('TicketNummer ', actTicketId);
   title=document.getElementById('ticket_title').value;
-  console.log('Title ',document.getElementById('ticket_title').value);
+  //console.log('Title ',document.getElementById('ticket_title').value);
   description=document.getElementById('ticket_description').value;
-  console.log('Description ',document.getElementById('ticket_description').value);
+  //console.log('Description ',document.getElementById('ticket_description').value);
   createdat=document.getElementById('ticket_created_at').value;
-  console.log('Created_at ',document.getElementById('ticket_created_at').value);
+  //console.log('Created_at ',document.getElementById('ticket_created_at').value);
   duedate=document.getElementById('ticket_duedate').value;
-  console.log('DueDate ',document.getElementById('ticket_duedate').value);
-  console.log('Listen-Nummer-ID ',actListId);
-  console.log('Listen-Nummer-Wert ',getValueOfSelectedIteminDropDownField('ticket_list'));
-  console.log('Prio-ID ',document.getElementById('ticket_prio').value);
+  //console.log('DueDate ',document.getElementById('ticket_duedate').value);
+  //console.log('Listen-Nummer-ID ',actListId);
+  //console.log('Listen-Nummer-Wert ',getValueOfSelectedIteminDropDownField('ticket_list'));
+  //console.log('Prio-ID ',document.getElementById('ticket_prio').value);
   prio=getValueOfSelectedIteminDropDownField('ticket_prio');
-  console.log('Prio-Wert ',getValueOfSelectedIteminDropDownField('ticket_prio'));
+  //console.log('Prio-Wert ',getValueOfSelectedIteminDropDownField('ticket_prio'));
   let result = getSelectedUsersAsArray();
   usersId = result.val1;
-  console.log('Users-ID ', result.val1 );
+  //console.log('Users-ID ', result.val1 );
   usersName = result.val2;
-  console.log('Users-Wert ', result.val2);
-  
-  //MUSS UNBEDINGT NOCH IM HTML-CODE GEÄNDERT WERDEN IN DER TICKET-BOX
-  if(actTicketId == ''){
-    let tickettouser=[];
-    for (i=0;i<result.val1.length;i++){
-      tickettouser.push({"id": result.val1[i], "username": result.val2[i]});
-    }
+  //console.log('Users-Wert ', result.val2);
 
-    task={
-      "id": 111111, //ACHTUNG DUMMY ID
-      ticket_created_at: document.getElementById('ticket_created_at').value,
-      ticket_description: document.getElementById('ticket_description').value,
-      ticket_duedate: document.getElementById('ticket_duedate').value,
-      ticket_list: actListId,
-      ticket_prio: getValueOfSelectedIteminDropDownField('ticket_prio'),
-      ticket_title: document.getElementById('ticket_title').value,
-      ticket_to_user: tickettouser
-    }
+  let tickettouser=[];
+  for (i=0;i<result.val1.length;i++){
+    tickettouser.push({"id": result.val1[i], "username": result.val2[i]});
+  }
+
+  task={
+    "id": actTicketId, //ACHTUNG DUMMY ID
+    "ticket_created_at": document.getElementById('ticket_created_at').value,
+    "ticket_description": document.getElementById('ticket_description').value,
+    "ticket_duedate": document.getElementById('ticket_duedate').value,
+    "ticket_list": actListId,
+    "ticket_prio": getValueOfSelectedIteminDropDownField('ticket_prio'),
+    "ticket_title": document.getElementById('ticket_title').value,
+    "ticket_to_user": tickettouser
+  }
+  return task;
+}
+
+
+async function saveTicket() {
+
+  let task = collectTicketData(); //MUSS UNBEDINGT NOCH IM HTML-CODE GEÄNDERT WERDEN IN DER TICKET-BOX
+  //console.log(task);
+
+  if(actTicketId == ''){
     //console.log(task);
     renderTask(task);
     renderUsersOfTask(task);
-    console.log('POST-REQUEST');
+    //console.log('POST','/tickets/',task);
+    let createNewTicketAtServer = await sendRequest('POST','/tickets/',task);
+    //console.log(createNewTicketAtServer);
   }
   else{
     updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,usersName);
-    console.log('PUT-REQUEST');
+    //console.log('PUT','/tickets/',task);
+    let updateTicketAtServer = await sendRequest('PUT','/tickets/', task);
+    //console.log(updateTicketAtServer);
   }
     closeTicket();
 }
 
 
-function deleteTicket(ticketId = actTicketId) { //Use actTicket if no ticketId is provided at function-call
+async function deleteTicket(ticketId = actTicketId) { //Use actTicket if no ticketId is provided at function-call
   if (ticketId !== '') { //Falls wir bei createTicket sind kann man das Ticket nicht löschen
     removeTicket(ticketId);
     console.log(`DELETE-REQUEST for ${ticketId} `);
+    task={
+      "id": ticketId, 
+    }
+    let deleteTicketFromServer = await sendRequest('DELETE','/tickets/',task);
+    console.log(deleteTicketFromServer);
     closeTicket();
   }
 }
 
 
 async function loadDataForHTML(){
-  let ticketsFromServer = await sendRequest('GET','/tickets/');
+  task={};
+  let ticketsFromServer = await sendRequest('GET','/tickets/', task);
   renderTickets(ticketsFromServer);
-  let usersFromServer = await sendRequest('GET','/users/');
+  let usersFromServer = await sendRequest('GET','/users/', task);
   renderUsers(usersFromServer);
 };
 
@@ -365,7 +386,7 @@ function renderTickets(jsonFromServer){
 }
 
 function renderTask(singleTask){
-  console.log('Das brauche ich als single Task ', singleTask);
+//console.log('Das brauche ich als single Task ', singleTask);
 containerId=containerIDs[singleTask.ticket_list-1];
 ticketId=singleTask.id;
 title=singleTask.ticket_title;
@@ -386,8 +407,8 @@ document.getElementById(containerId).innerHTML+=`
   <span>Users: 
     <span id="tickettouser${ticketId}" class="colortext"></span>
   </span>
-  <div class="ticket-edit" onclick="editTicket('${ticketId}',${listId})"><img  src="{% static 'img/edit16.png' %}"></div>
-  <div class="ticket-delete" onclick="deleteTicket(${ticketId})"><img  src="{% static 'img/delete16.png' %}"></div>
+  <div class="ticket-edit" onclick="editTicket('${ticketId}',${listId})"><img  src="../../../static/img/edit16.png"></div>
+  <div class="ticket-delete" onclick="deleteTicket(${ticketId})"><img  src="../../../static/img/delete16.png"></div>
 </div>
 `;
 }
@@ -402,6 +423,7 @@ for(j=0;j<ticketToUser.length;j++){
 }
 
 function renderUsers(usersFromServer){
+  console.log(usersFromServer);
   for(j=0;j<usersFromServer.length;j++){
     document.getElementById('ticket_to_user').innerHTML+=`
     <li class="mdl-list__item">
@@ -419,31 +441,20 @@ function renderUsers(usersFromServer){
 }
 
 
-
-
-/**
- * Array with month-abbreviations
- */
-const monthNames = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
-
 /**
  * Sends a Message to the chat
  */
-async function sendRequest(method, url, ticketId, listId) {
-  console.log(method,' ', url,' TicketId: ', ticketId,' Neue ListenId: ', listId);
-  let fd = getDataFromMessageForm(ticketId, listId);
-  //let messageContainerSaved = messageContainer.innerHTML;
-  //let dateOfPost = giveActualDate(); //Get actual Date
+async function sendRequest(method, url, task) {
+  console.log(method,' ', url,' Task: ', task);
+  let fd = getDataFromMessageForm(task);
 
   try {
-    //showLoadingAnimation(dateOfPost,username,messageField.value,'gray','gray','deleteMessage',messageContainerSaved);
-    return await waitingForServerResponse(method,url,fd,ticketId);
-    //showSendingMessageSuccessful(`[${transformDateIntoWishedFormat(jsonparsed.fields.created_at)}]`,jsonparsed.fields.author['0'],jsonparsed.fields.text,'gray','black','',messageContainerSaved);
-    //console.log(json);
+    showLoadingAnimation();
+    return await waitingForServerResponse(method,url,fd);
   }
   catch (e) {
     console.log(e);
-    //showSendingMessageFailed(dateOfPost,username,messageField.value,'red','red','deleteMessage', messageContainerSaved);
+    showOperationFailed();
   }
 }
 
@@ -451,21 +462,28 @@ async function sendRequest(method, url, ticketId, listId) {
  * Fetches Data from the messageField
  * @returns Form-Data-Object
  */
-function getDataFromMessageForm(ticketId, listId) {
+function getDataFromMessageForm(task) {
   let fd = new FormData();
-  fd.append('id', ticketId);
-  fd.append('ticket_list', listId);
   fd.append('csrfmiddlewaretoken', 'bba75e9f47dc83ccea62aee1904a78136837a184');
-  console.log(ticketId, listId, token);
+  //console.log(task);
+  if(task['id'] !== undefined){fd.append('id', task['id'])};
+  if(task['ticket_title'] !== undefined){fd.append('ticket_title', task['ticket_title'])};
+  if(task['ticket_description'] !== undefined){fd.append('ticket_description', task['ticket_description'])};
+  if(task['ticket_created_at'] !== undefined){fd.append('ticket_created_at', task['ticket_created_at'])};
+  if(task['ticket_duedate'] !== undefined){fd.append('ticket_duedate', task['ticket_duedate'])};
+  if(task['ticket_list'] !== undefined){fd.append('ticket_list', task['ticket_list'])};
+  if(task['ticket_prio'] !== undefined){fd.append('ticket_prio', task['ticket_prio'])};
+  if(task['ticket_to_user'] !== undefined){fd.append('ticket_to_user', task['tickettouser'])};
+  console.log(task['ticket_to_user'],task.ticket_to_user);
   return fd;
 }
 
 /**
- * Makes a POST-Request to the server
- * @param {Object} fd 
- * @returns a parsed JSON
+ * Makes a Request to the server (GET, POST, DELETE, PUT)
+ * @param {Object} fd Form-Data-Object
+ * @returns a JSON
  */
-async function waitingForServerResponse(method,url,fd,ticketId) {
+async function waitingForServerResponse(method,url,fd) {
     let response;
 
   if(method=='GET'){
@@ -477,50 +495,16 @@ async function waitingForServerResponse(method,url,fd,ticketId) {
   else{
     response = await fetch(`${url}${ticketId}/`, {method: method, body: fd});
   }
-  
-
 
   let json = await response.json();
-  //let jsonparsed = JSON.parse(json);
+  showOperationSuccessful();
   return json;
 }
 
 /**
- * Removes JS-Message (preview of real message)
+ * Shows Loading Animation
  */
-function removeMessageFromMessageContainer() {
-  document.getElementById('deleteMessage').remove();
-}
-
-/**
- * Shows Message
- */
-function showMessageInMessageContainer(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved) {
-  messageContainer.innerHTML = `
-  <div id="${id}">
-    <span class="color-${colorOfDate}">${date}</span> ${username}: <i class="color-${colorOfText}">${textmessage}</i>
-  </div>`+ messageContainerSaved;
-}
-
-/**
- * Clears InputField with message
- */
-function emptyTextField() {
-  messageField.value = '';
-}
-
-/**
- * Shows Loading Animation and JS-Message (preview of real message)
- * @param {String} dateOfPost 
- * @param {String} username 
- * @param {String} message 
- * @param {String} colorOfDate 
- * @param {String} colorOfText 
- * @param {String} id 
- * @param {String} messageContainerSaved 
- */
-function showLoadingAnimation(dateOfPost, username, message, colorOfDate, colorOfText, id, messageContainerSaved) {
-  showMessageInMessageContainer(dateOfPost, username, message, colorOfDate, colorOfText, id, messageContainerSaved);
+function showLoadingAnimation() {
   document.getElementById('spinner').classList.remove('d-none');
 }
 
@@ -528,71 +512,38 @@ function showLoadingAnimation(dateOfPost, username, message, colorOfDate, colorO
  * Removes Loading-Animation
  */
 function removeLoadingAnimation() {
-  emptyTextField();
   document.getElementById('spinner').classList.add('d-none');
 }
 
 /**
- * Show that POST-Request was accepted by the server
- * @param {String} date 
- * @param {String} username 
- * @param {String} textmessage 
- * @param {String} colorOfDate 
- * @param {String} colorOfText 
- * @param {String} id 
- * @param {String} messageContainerSaved 
+ * Shows OK-Message in the header
  */
-function showSendingMessageSuccessful(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved) {
-  removeMessageFromMessageContainer();
+function showOkMessage(){
+  document.getElementById('ok').classList.remove('d-none');
+    setTimeout(() => {
+      document.getElementById('ok').classList.add('d-none');
+  }, 1000);
+}
+
+/**
+ * Shows Error-Message in the header
+ */
+function showErrorMessage(){
+  document.getElementById('error').classList.remove('d-none');
+}
+
+/**
+ * Request was successful
+ */
+function showOperationSuccessful(){
   removeLoadingAnimation();
-  showMessageInMessageContainer(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved);
+  showOkMessage();
 }
 
 /**
- * Show that POST-Request was NOT accepted by the server
- * @param {String} date 
- * @param {String} username 
- * @param {String} textmessage 
- * @param {String} colorOfDate 
- * @param {String} colorOfText 
- * @param {String} id 
- * @param {String} messageContainerSaved 
+ * Request failed
  */
-function showSendingMessageFailed(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved) {
-  showMessageInMessageContainer(date, username, textmessage, colorOfDate, colorOfText, id, messageContainerSaved);
-  setTimeout(() => {
-    removeLoadingAnimation();
-    document.getElementById('deleteMessage').innerHTML += `<span class="color-red"> - Sry. Message could not be send. </span>`;
-  }, 3000);
-}
-
-/**
- * Generates string with the actual date in this format: [Jan. 11, 2023]
- * @returns string datetime
- */
-function giveActualDate() {
-  let currentdate = new Date();  /* Generates a date-variable with actual date */
-  let datetime = "[" + currentdate.toLocaleString('default', { month: 'short' }) + ". "
-    + currentdate.getDate() + ", "   /* Month */
-    + currentdate.getFullYear() + "]";  /* Year */
-  return datetime;
-}
-
-/**
- * Receives a string in the format "2010-10-30" and converts it into string "Oct. 10, 2010"
- * @param {string} datetotransform The received string
- * @returns string wisheddate
- */
-function transformDateIntoWishedFormat(datetotransform) {
-  let datum = datetotransform;
-  let ersterstrich = datum.indexOf("-");
-  let zweiterstrich = datum.lastIndexOf("-");
-  let jahr = datum.slice(0, ersterstrich);
-  let monat = datum.slice(ersterstrich + 1, zweiterstrich);
-  if (monat.length == 2 && monat.slice(0, 0) == '0') { monat = monat.slice(1, 1) };
-  monat = monthNames[monat - 1];
-  let tag = datum.slice(zweiterstrich + 1, datum.length);
-  if (tag.length == 2 && tag.slice(0, 1) == '0') { tag = tag.slice(-1) };
-  let wisheddate = monat + " " + tag + ", " + jahr;
-  return wisheddate;
+function showOperationFailed(){
+  removeLoadingAnimation();
+  showErrorMessage();
 }

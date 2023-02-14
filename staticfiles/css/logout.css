@@ -1,8 +1,19 @@
+.logout-center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-
-
+.logout-container {
+    display: flex;
+    text-align: center;
+    width: 500px;
+}
 
 
 @media (min-width:280px) and (max-width:350px) {
 
+    h1{
+        font-size: 24px !important;
+    } 
 }

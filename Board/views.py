@@ -15,42 +15,29 @@ from rest_framework import viewsets, permissions, authentication, status #Um die
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserAPI(APIView):
     """
-    API endpoint that allows users to be viewed or edited.
+    List all users, or create a new user.
     """
-    queryset = User.objects.all().order_by('id')
-    serializer_class = UsersSerializer
     permission_classes = [permissions.AllowAny]
     authentication_classes =[authentication.TokenAuthentication]
 
+    def get(self, request, format=None):
+        print('GET SOLLTE PERFORMED WERDEN ')
+        tickets = User.objects.all()
+        serializer = UsersSerializer(tickets, many=True)
+        return Response(serializer.data)
 
-    def create(self, request): #POST
-        newUser = User.objects.create_user(username= request.data.get('username'),
-                                           first_name= request.data.get('first_name',''), 
-                                           last_name= request.data.get('last_name',''),
-                                           email= request.data.get('email',''),
-                                           password= request.data.get('password'),
-                                          )                                         
-        serialized_obj = serializers.serialize('json', [newUser, ]) # We have to transform our created object into JSON via a serializer 
-        return HttpResponse(serialized_obj, content_type='application/json')
+    def post(self, request, format=None):
+        print('POST SOLLTE PERFORMED WERDEN ')
+        serializer = UsersSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-class ListViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows tickets to be viewed or edited.
-    """
-    #If GET-Request: We receive a Queryset
-    queryset = List.objects.all().order_by('id')
-    serializer_class = ListsSerializer
-    permission_classes = [permissions.AllowAny]
-    authentication_classes =[authentication.TokenAuthentication]
-
-    def create(self, request): #POST
-        newList = List.objects.create(list_name= request.data.get('list_name'),)
-        serialized_obj = serializers.serialize('json', [newList, ]) # We have to transform our created object into JSON via a serializer 
-        return HttpResponse(serialized_obj, content_type='application/json')
 
 class TicketAPI(APIView):
     """
@@ -67,7 +54,7 @@ class TicketAPI(APIView):
 
     def post(self, request, format=None):
         print('POST SOLLTE PERFORMED WERDEN ')
-        serializer = TicketsSerializer(data=request.data)
+        serializer = TicketsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -95,7 +82,8 @@ class TicketAPIDetail(APIView):
     def put(self, request, pk, format=None): #PUT
      print('PUT SOLLTE PERFORMED WERDEN ')
      ticket = self.get_object(pk)
-     serializer = TicketsSerializer(ticket, data=request.data)
+     print(ticket.ticket_to_user.all())
+     serializer = TicketsSerializer(ticket, data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
      if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

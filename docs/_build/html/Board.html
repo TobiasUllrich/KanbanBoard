@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Board package &mdash; KanbanBoard  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            KanbanBoard
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Board package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#board-admin-module">Board.admin module</a></li>
+<li><a class="reference internal" href="#module-Board.apps">Board.apps module</a><ul>
+<li><a class="reference internal" href="#Board.apps.BoardConfig"><code class="docutils literal notranslate"><span class="pre">BoardConfig</span></code></a><ul>
+<li><a class="reference internal" href="#Board.apps.BoardConfig.default_auto_field"><code class="docutils literal notranslate"><span class="pre">BoardConfig.default_auto_field</span></code></a></li>
+<li><a class="reference internal" href="#Board.apps.BoardConfig.name"><code class="docutils literal notranslate"><span class="pre">BoardConfig.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#board-models-module">Board.models module</a></li>
+<li><a class="reference internal" href="#board-serializers-module">Board.serializers module</a></li>
+<li><a class="reference internal" href="#module-Board.tests">Board.tests module</a></li>
+<li><a class="reference internal" href="#board-views-module">Board.views module</a></li>
+<li><a class="reference internal" href="#module-Board">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">KanbanBoard</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Board package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/Board.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="board-package">
+<h1>Board package<a class="headerlink" href="#board-package" title="Permalink to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Board.migrations.html">Board.migrations package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#board-migrations-0001-initial-module">Board.migrations.0001_initial module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#module-Board.migrations.0002_rename_name_board_board_name_and_more">Board.migrations.0002_rename_name_board_board_name_and_more module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Board.migrations.html#Board.migrations.0002_rename_name_board_board_name_and_more.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Board.migrations.html#Board.migrations.0002_rename_name_board_board_name_and_more.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Board.migrations.html#Board.migrations.0002_rename_name_board_board_name_and_more.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#board-migrations-0003-ticket-tickettouser-ticket-ticket-user-boardtouser-and-more-module">Board.migrations.0003_ticket_tickettouser_ticket_ticket_user_boardtouser_and_more module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#board-migrations-0004-remove-ticket-ticket-user-ticket-ticket-to-user-and-more-module">Board.migrations.0004_remove_ticket_ticket_user_ticket_ticket_to_user_and_more module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#module-Board.migrations.0005_list_remove_boardtouser_board_and_more">Board.migrations.0005_list_remove_boardtouser_board_and_more module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Board.migrations.html#Board.migrations.0005_list_remove_boardtouser_board_and_more.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Board.migrations.html#Board.migrations.0005_list_remove_boardtouser_board_and_more.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Board.migrations.html#Board.migrations.0005_list_remove_boardtouser_board_and_more.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#board-migrations-0006-userprofile-alter-ticket-ticket-to-user-and-more-module">Board.migrations.0006_userprofile_alter_ticket_ticket_to_user_and_more module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#board-migrations-0007-alter-ticket-ticket-to-user-alter-tickettouser-user-module">Board.migrations.0007_alter_ticket_ticket_to_user_alter_tickettouser_user module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#module-Board.migrations.0008_delete_userprofile">Board.migrations.0008_delete_userprofile module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="Board.migrations.html#Board.migrations.0008_delete_userprofile.Migration"><code class="docutils literal notranslate"><span class="pre">Migration</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="Board.migrations.html#Board.migrations.0008_delete_userprofile.Migration.dependencies"><code class="docutils literal notranslate"><span class="pre">Migration.dependencies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="Board.migrations.html#Board.migrations.0008_delete_userprofile.Migration.operations"><code class="docutils literal notranslate"><span class="pre">Migration.operations</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#board-migrations-0009-alter-ticket-ticket-to-user-module">Board.migrations.0009_alter_ticket_ticket_to_user module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Board.migrations.html#module-Board.migrations">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="board-admin-module">
+<h2>Board.admin module<a class="headerlink" href="#board-admin-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-Board.apps">
+<span id="board-apps-module"></span><h2>Board.apps module<a class="headerlink" href="#module-Board.apps" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="Board.apps.BoardConfig">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Board.apps.</span></span><span class="sig-name descname"><span class="pre">BoardConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">app_module</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Board.apps.BoardConfig" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">AppConfig</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Board.apps.BoardConfig.default_auto_field">
+<span class="sig-name descname"><span class="pre">default_auto_field</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'django.db.models.BigAutoField'</span></em><a class="headerlink" href="#Board.apps.BoardConfig.default_auto_field" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="Board.apps.BoardConfig.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Board'</span></em><a class="headerlink" href="#Board.apps.BoardConfig.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="board-models-module">
+<h2>Board.models module<a class="headerlink" href="#board-models-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="board-serializers-module">
+<h2>Board.serializers module<a class="headerlink" href="#board-serializers-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-Board.tests">
+<span id="board-tests-module"></span><h2>Board.tests module<a class="headerlink" href="#module-Board.tests" title="Permalink to this heading"></a></h2>
+</section>
+<section id="board-views-module">
+<h2>Board.views module<a class="headerlink" href="#board-views-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-Board">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-Board" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, tullrich.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
