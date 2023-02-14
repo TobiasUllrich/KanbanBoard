@@ -54,9 +54,11 @@ class TicketAPI(APIView):
 
     def post(self, request, format=None):
         print('POST SOLLTE PERFORMED WERDEN ')
+        print('INPUT ',request.data)
         serializer = TicketsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
         if serializer.is_valid():
             serializer.save()
+            print('OUTPUT ',serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -82,7 +84,7 @@ class TicketAPIDetail(APIView):
     def put(self, request, pk, format=None): #PUT
      print('PUT SOLLTE PERFORMED WERDEN ')
      ticket = self.get_object(pk)
-     print(ticket.ticket_to_user.all())
+     print('PUT Ticket-To-USER ',ticket.ticket_to_user.all())
      serializer = TicketsSerializer(ticket, data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
      if serializer.is_valid():
             serializer.save()
@@ -91,7 +93,9 @@ class TicketAPIDetail(APIView):
 
     def delete(self, request, pk, format=None):
         print('DELETE SOLLTE PERFORMED WERDEN ')
+        print('INPUT ',request.data)
         ticket = self.get_object(pk)
+        print('TODELETE ',ticket)
         ticket.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

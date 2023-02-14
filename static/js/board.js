@@ -35,7 +35,7 @@ async function moveTo(newListId, newContainerId) {
     //console.log('Ziel ist Element mit id: ',newListId);
 
     //PUT-REQUEST
-    //await sendRequest(currentDraggedElement.id, newListId);
+
     task={
       "id": currentDraggedElement.id,
       "ticket_list": newListId
@@ -313,8 +313,10 @@ function collectTicketData(){
   //console.log('Users-Wert ', result.val2);
 
   let tickettouser=[];
+  let tickettouserHTML=[];
   for (i=0;i<result.val1.length;i++){
-    tickettouser.push({"id": result.val1[i], "username": result.val2[i]});
+    tickettouserHTML.push({"id": result.val1[i], "username": result.val2[i]});
+    tickettouser.push(+result.val1[i]);
   }
 
   task={
@@ -327,22 +329,37 @@ function collectTicketData(){
     "ticket_title": document.getElementById('ticket_title').value,
     "ticket_to_user": tickettouser
   }
-  return task;
+  taskToRenderHTML={
+    "id": actTicketId, //ACHTUNG DUMMY ID
+    "ticket_created_at": document.getElementById('ticket_created_at').value,
+    "ticket_description": document.getElementById('ticket_description').value,
+    "ticket_duedate": document.getElementById('ticket_duedate').value,
+    "ticket_list": actListId,
+    "ticket_prio": getValueOfSelectedIteminDropDownField('ticket_prio'),
+    "ticket_title": document.getElementById('ticket_title').value,
+    "ticket_to_user": tickettouserHTML
+  }
+  return {task, taskToRenderHTML};
 }
 
 
 async function saveTicket() {
 
-  let task = collectTicketData(); //MUSS UNBEDINGT NOCH IM HTML-CODE GEÄNDERT WERDEN IN DER TICKET-BOX
+  let task = collectTicketData().task;
+  let taskToRenderHTML = collectTicketData().taskToRenderHTML;
   //console.log(task);
 
   if(actTicketId == ''){
     //console.log(task);
-    renderTask(task);
-    renderUsersOfTask(task);
+
     //console.log('POST','/tickets/',task);
     let createNewTicketAtServer = await sendRequest('POST','/tickets/',task);
-    //console.log(createNewTicketAtServer);
+    //console.log('ANTWORT POST ',createNewTicketAtServer);
+    //console.log('ANTWORT POST ',createNewTicketAtServer.id);
+    taskToRenderHTML.id=createNewTicketAtServer.id;
+    //console.log('TASK TO RENDER HTML ',taskToRenderHTML);
+    renderTask(taskToRenderHTML);
+    renderUsersOfTask(taskToRenderHTML);
   }
   else{
     updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,usersName);
@@ -362,7 +379,7 @@ async function deleteTicket(ticketId = actTicketId) { //Use actTicket if no tick
       "id": ticketId, 
     }
     let deleteTicketFromServer = await sendRequest('DELETE','/tickets/',task);
-    console.log(deleteTicketFromServer);
+    //console.log(deleteTicketFromServer);
     closeTicket();
   }
 }
@@ -450,10 +467,10 @@ async function sendRequest(method, url, task) {
 
   try {
     showLoadingAnimation();
-    return await waitingForServerResponse(method,url,fd);
+    return await waitingForServerResponse(method,url,fd,task);
   }
   catch (e) {
-    console.log(e);
+    console.log('Fehler   ',e);
     showOperationFailed();
   }
 }
@@ -465,7 +482,7 @@ async function sendRequest(method, url, task) {
 function getDataFromMessageForm(task) {
   let fd = new FormData();
   fd.append('csrfmiddlewaretoken', 'bba75e9f47dc83ccea62aee1904a78136837a184');
-  //console.log(task);
+
   if(task['id'] !== undefined){fd.append('id', task['id'])};
   if(task['ticket_title'] !== undefined){fd.append('ticket_title', task['ticket_title'])};
   if(task['ticket_description'] !== undefined){fd.append('ticket_description', task['ticket_description'])};
@@ -473,8 +490,8 @@ function getDataFromMessageForm(task) {
   if(task['ticket_duedate'] !== undefined){fd.append('ticket_duedate', task['ticket_duedate'])};
   if(task['ticket_list'] !== undefined){fd.append('ticket_list', task['ticket_list'])};
   if(task['ticket_prio'] !== undefined){fd.append('ticket_prio', task['ticket_prio'])};
-  if(task['ticket_to_user'] !== undefined){fd.append('ticket_to_user', task['tickettouser'])};
-  console.log(task['ticket_to_user'],task.ticket_to_user);
+  if(task['ticket_to_user'] !== undefined){fd.append('ticket_to_user', task['ticket_to_user'])};
+  
   return fd;
 }
 
@@ -483,7 +500,7 @@ function getDataFromMessageForm(task) {
  * @param {Object} fd Form-Data-Object
  * @returns a JSON
  */
-async function waitingForServerResponse(method,url,fd) {
+async function waitingForServerResponse(method,url,fd,task) {
     let response;
 
   if(method=='GET'){
@@ -493,7 +510,7 @@ async function waitingForServerResponse(method,url,fd) {
     response = await fetch(`${url}`, {method: method, body: fd});
   }
   else{
-    response = await fetch(`${url}${ticketId}/`, {method: method, body: fd});
+    response = await fetch(`${url}${task['id']}/`, {method: method, body: fd});
   }
 
   let json = await response.json();
@@ -519,6 +536,7 @@ function removeLoadingAnimation() {
  * Shows OK-Message in the header
  */
 function showOkMessage(){
+  document.getElementById('error').classList.remove('d-none');
   document.getElementById('ok').classList.remove('d-none');
     setTimeout(() => {
       document.getElementById('ok').classList.add('d-none');
@@ -530,6 +548,7 @@ function showOkMessage(){
  */
 function showErrorMessage(){
   document.getElementById('error').classList.remove('d-none');
+  document.getElementById('ok').classList.add('d-none');
 }
 
 /**

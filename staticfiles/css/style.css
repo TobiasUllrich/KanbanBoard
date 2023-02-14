@@ -45,6 +45,9 @@ margin-top:100px;
     color: green;
 }
 
+.d-none{
+ display:none;
+}
 
 @media (min-width:280px) and (max-width:600px) {
 
