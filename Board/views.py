@@ -58,24 +58,28 @@ class TicketAPI(APIView):
         serializer = TicketsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
 
         if serializer.is_valid():
-            serializer.save()
-            # Hier wird das ManyToMany-Feld befüllt.
-            # Angenommen, das ManyToMany-Feld heißt "ticket_to_users" und
-            # die zugehörigen IDs werden in der Liste "related_models_ids" übergeben.
-            extracted_ids = request.data.get('ticket_to_user', [])
-            print('USERS ',extracted_ids)
-            related_user_models = User.objects.filter(id__in=extracted_ids)
-            print('USERS ',related_user_models)
-            Ticket.ticket_to_user.set(related_user_models)
-
+            ticket = serializer.save()  
+            related_user_models = Functions.getUserObjectsAsArray(request)
+            ticket.ticket_to_user.set(related_user_models)
             print('OUTPUT ',serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    
 
+class Functions():
 
-
-
+    def getUserObjectsAsArray(request):
+        extracted_user_ids = request.data.get('ticket_to_user')
+        print(extracted_user_ids)
+        extracted_user_ids =  extracted_user_ids.split(',')
+        print(extracted_user_ids)
+        extracted_user_ids = [int(x) for x in extracted_user_ids]
+        print(extracted_user_ids)
+        print('USER-IDs AS ARRAY ',extracted_user_ids)
+        related_user_models = User.objects.filter(id__in=extracted_user_ids)
+        print('USER-INSTANCES AS ARRAY  ',related_user_models)
+        return related_user_models
 
 class TicketAPIDetail(APIView):
     """
@@ -102,7 +106,10 @@ class TicketAPIDetail(APIView):
      print('PUT Ticket-To-USER ',ticket.ticket_to_user.all())
      serializer = TicketsSerializer(ticket, data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
      if serializer.is_valid():
-            serializer.save()
+            ticket = serializer.save()  
+            related_user_models = Functions.getUserObjectsAsArray(request)
+            ticket.ticket_to_user.set(related_user_models)
+
             return Response(serializer.data)
      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
