@@ -56,11 +56,26 @@ class TicketAPI(APIView):
         print('POST SOLLTE PERFORMED WERDEN ')
         print('INPUT ',request.data)
         serializer = TicketsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
+
         if serializer.is_valid():
             serializer.save()
+            # Hier wird das ManyToMany-Feld befüllt.
+            # Angenommen, das ManyToMany-Feld heißt "ticket_to_users" und
+            # die zugehörigen IDs werden in der Liste "related_models_ids" übergeben.
+            extracted_ids = request.data.get('ticket_to_user', [])
+            print('USERS ',extracted_ids)
+            related_user_models = User.objects.filter(id__in=extracted_ids)
+            print('USERS ',related_user_models)
+            Ticket.ticket_to_user.set(related_user_models)
+
             print('OUTPUT ',serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
 
 class TicketAPIDetail(APIView):
     """

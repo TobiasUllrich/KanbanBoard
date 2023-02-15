@@ -356,7 +356,7 @@ async function saveTicket() {
     let createNewTicketAtServer = await sendRequest('POST','/tickets/',task);
     //console.log('ANTWORT POST ',createNewTicketAtServer);
     //console.log('ANTWORT POST ',createNewTicketAtServer.id);
-    taskToRenderHTML.id=createNewTicketAtServer.id;
+    taskToRenderHTML['id']=createNewTicketAtServer['id'];
     //console.log('TASK TO RENDER HTML ',taskToRenderHTML);
     renderTask(taskToRenderHTML);
     renderUsersOfTask(taskToRenderHTML);
