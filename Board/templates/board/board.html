@@ -9,7 +9,9 @@
 <script src="{% static 'js/board.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/board.css' %}">
 
-<div class="board-header">
+
+<div class="board-container">
+<div id="todo-box">
   <!-- Create Tickets in List ToDos --> 
   <div class="board-lists">
     <span class="board-list-title">To do</span>
@@ -17,39 +19,7 @@
    <i class="material-icons">add</i>
   </button>
   </div>
-  <!-- Create Tickets in List ToDos -->
-
-  <!-- Create Tickets in List InProgress --> 
-  <div class="board-lists">
-    <span class="board-list-title">In progress</span>
-    <button onclick="newTicket(2)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-      <i class="material-icons">add</i>
-     </button>
-  </div>
-  <!-- Create Tickets in List InProgress -->
-
-  <!-- Create Tickets in List AwaitingFeedback -->
-  <div class="board-lists">
-    <span class="board-list-title">Awaiting feedback</span>
-    <button onclick="newTicket(3)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-      <i class="material-icons">add</i>
-     </button>
-  </div>
-  <!-- Create Tickets in List AwaitingFeedback -->
-
-  <!-- Create Tickets in List Done -->
-  <div class="board-lists">
-    <span class="board-list-title">Done</span>
-    <button onclick="newTicket(4)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-      <i class="material-icons">add</i>
-     </button>
-  </div>
-  <!-- Create Tickets in List Done -->
-</div>
-
-
-<div class="board-container">
- 
+  <!-- Create Tickets in List ToDos -->  
 <div id="todo" class="drag-area" ondrop="moveTo(1,'todo')" ondragover="allowDrop(event)">
     <!-- Tickets in List ToDos --> 
     {% for toDo in toDos reversed %}
@@ -72,7 +42,17 @@
     {% endfor %}
     <!-- Tickets in List ToDos --> 
 </div>
+</div> 
 
+<div id="inprogress-box">
+    <!-- Create Tickets in List InProgress --> 
+    <div class="board-lists">
+      <span class="board-list-title">In progress</span>
+      <button onclick="newTicket(2)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+        <i class="material-icons">add</i>
+       </button>
+    </div>
+    <!-- Create Tickets in List InProgress -->
 <div id="inprogress" class="drag-area" ondrop="moveTo(2,'inprogress')" ondragover="allowDrop(event)">
     <!-- Tickets in List InProgress --> 
     {% for inPro in inProgress reversed %}
@@ -95,7 +75,17 @@
     {% endfor %}
     <!-- Tickets in List InProgress --> 
 </div>
+</div> 
 
+<div id="awaitingfeedback-box">
+    <!-- Create Tickets in List AwaitingFeedback -->
+    <div class="board-lists">
+      <span class="board-list-title">Awaiting feedback</span>
+      <button onclick="newTicket(3)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+        <i class="material-icons">add</i>
+       </button>
+    </div>
+    <!-- Create Tickets in List AwaitingFeedback -->
 <div id="awaitingfeedback" class="drag-area" ondrop="moveTo(3,'awaitingfeedback')" ondragover="allowDrop(event)">
     <!-- Tickets in List AwaitingFeedback --> 
     {% for awFeed in awaitingFeedback reversed %}
@@ -118,7 +108,17 @@
     {% endfor %}
     <!-- Tickets in List AwaitingFeedback --> 
 </div>
+</div> 
 
+<div id="done-box">
+    <!-- Create Tickets in List Done -->
+    <div class="board-lists">
+      <span class="board-list-title">Done</span>
+      <button onclick="newTicket(4)" class="btn mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+        <i class="material-icons">add</i>
+       </button>
+    </div>
+    <!-- Create Tickets in List Done -->
 <div id="done" class="drag-area" ondrop="moveTo(4,'done')" ondragover="allowDrop(event)">
     <!-- Tickets in List Done --> 
     {% for done in dones reversed %}
@@ -141,7 +141,10 @@
     {% endfor %}
    <!-- Tickets in List Done --> 
 </div>
+</div> 
+
 </div>
+
 
  <!-- Invisible Pop-Up to update Ticket --> 
 <div id="board-popup" class="d-none">

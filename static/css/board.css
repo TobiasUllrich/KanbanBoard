@@ -1,6 +1,8 @@
-.board-header{
+
+#todo-box, #inprogress-box, #awaitingfeedback-box, #done-box{
     display:flex;
-    height:50px;
+    flex-direction:column;
+    width:25%;
 }
 
 .board-list-title{
@@ -11,8 +13,8 @@ margin-left:10px;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    width:25vw;
     border: 1px solid black;
+    width:100%;
 }
 
 .btn{
@@ -25,18 +27,21 @@ margin-left:10px;
 
 .board-container{
     display:flex;
+    width:calc(100vw - 21px);
 }
 
 .drag-area{
     display:flex;
     flex-direction:column;
     align-items:center;
-    width:25vw;
+    width:100%;
 }
 
 #todo, #inprogress,#awaitingfeedback,#done{
+    display:flex;
     border: 1px solid black;
-    height:calc(100vh - 100px - 50px);   
+    height:calc(100vh - 100px - 50px);
+    overflow-y:scroll;   
 }
 
 .ticket{
@@ -99,6 +104,7 @@ margin-left:10px;
     position:relative;
     display:flex;
     flex-direction:column;
+    text-align:unset;
     border: 1px solid black;
     border-radius:10px;
     width:100%;
@@ -144,7 +150,14 @@ margin-left:10px;
 }
 
 
-@media (min-width:280px) and (max-width:350px) {
+@media (min-width:280px) and (max-width:900px) {
 
+    .board-container{
+        flex-direction: column;
+        align-items:center;
+    }
+    #todo-box, #inprogress-box, #awaitingfeedback-box, #done-box{
+        width:100%;
+    }
 
 }

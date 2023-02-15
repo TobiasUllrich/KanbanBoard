@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, permissions, authentication, status #Um die Viewsets des REST-Frameworks benutzen zu können
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
+import Board.utils
 
 class UserAPI(APIView):
     """
@@ -43,7 +44,8 @@ class TicketAPI(APIView):
     """
     List all tickets, or create a new ticket.
     """
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    #permission_classes = [permissions.AllowAny]
     authentication_classes =[authentication.TokenAuthentication]
 
     def get(self, request, format=None):
@@ -56,10 +58,10 @@ class TicketAPI(APIView):
         print('POST SOLLTE PERFORMED WERDEN ')
         print('INPUT ',request.data)
         serializer = TicketsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
-
+        print('VALID ',serializer.is_valid())
         if serializer.is_valid():
             ticket = serializer.save()  
-            related_user_models = Functions.getUserObjectsAsArray(request)
+            related_user_models = Board.utils.Functions.getUserObjectsAsArray(request)
             ticket.ticket_to_user.set(related_user_models)
             print('OUTPUT ',serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -67,25 +69,29 @@ class TicketAPI(APIView):
 
     
 
-class Functions():
+# class Functions():
 
-    def getUserObjectsAsArray(request):
-        extracted_user_ids = request.data.get('ticket_to_user')
-        print(extracted_user_ids)
-        extracted_user_ids =  extracted_user_ids.split(',')
-        print(extracted_user_ids)
-        extracted_user_ids = [int(x) for x in extracted_user_ids]
-        print(extracted_user_ids)
-        print('USER-IDs AS ARRAY ',extracted_user_ids)
-        related_user_models = User.objects.filter(id__in=extracted_user_ids)
-        print('USER-INSTANCES AS ARRAY  ',related_user_models)
-        return related_user_models
+#     def getUserObjectsAsArray(request):
+#         extracted_user_ids = request.data.get('ticket_to_user')
+#         if (extracted_user_ids != ''):
+#          print('ERSTENS ',extracted_user_ids)
+#          extracted_user_ids =  extracted_user_ids.split(',')
+#          print('ERSTENS ',extracted_user_ids)
+#          extracted_user_ids = [int(x) for x in extracted_user_ids]
+#          print('ERSTENS ',extracted_user_ids)
+#          print('USER-IDs AS ARRAY ',extracted_user_ids)
+#          related_user_models = User.objects.filter(id__in=extracted_user_ids)
+#          print('USER-INSTANCES AS ARRAY  ',related_user_models)
+#          return related_user_models
+#         else:
+#          return []
 
 class TicketAPIDetail(APIView):
     """
     Retrieve, update or delete a ticket instance.
     """
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    #permission_classes = [permissions.AllowAny]
     authentication_classes =[authentication.TokenAuthentication]
     
     def get_object(self, pk):
@@ -107,7 +113,8 @@ class TicketAPIDetail(APIView):
      serializer = TicketsSerializer(ticket, data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
      if serializer.is_valid():
             ticket = serializer.save()  
-            related_user_models = Functions.getUserObjectsAsArray(request)
+            related_user_models = Board.utils.Functions.getUserObjectsAsArray(request)
+            print('USERMODELS ',related_user_models)
             ticket.ticket_to_user.set(related_user_models)
 
             return Response(serializer.data)

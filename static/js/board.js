@@ -41,8 +41,9 @@ async function moveTo(newListId, newContainerId) {
       "ticket_list": newListId
     }
     let ticketsFromServer = await sendRequest('PUT','/tickets/',task);
-
-    placeTicketInAnotherList(newContainerId);
+    
+    
+    placeTicketInAnotherList(newContainerId,newListId);
     removeTicketFromFormerList();
   }
 }
@@ -51,11 +52,19 @@ async function moveTo(newListId, newContainerId) {
  * Creates a new HTML-Element inside the dropping Container
  * @param {string} newContainerId id of the Container where the current dragged element is dropped in
  */
-function placeTicketInAnotherList(newContainerId) {
+function placeTicketInAnotherList(newContainerId,newListId) {
+  console.log(newContainerId);
+  console.log(newListId);
+  console.log(currentDraggedElement.id);
+  console.log(`<div class="ticket-edit" onclick="editTicket('${currentDraggedElement.id}',${newListId})"><img  src="../../../static/img/edit16.png"></div>`);
+  document.getElementById(`editTicket${currentDraggedElement.id}`).innerHTML =`
+  <div class="ticket-edit" onclick="editTicket('${currentDraggedElement.id}',${newListId})"><img  src="../../../static/img/edit16.png"></div>`;
+  
   document.getElementById(newContainerId).innerHTML += `
   <div class="ticket" id='${currentDraggedElement.id}' draggable="true" ondragstart="startDragging('${currentDraggedElement.id}')">
    ${currentDraggedElement.innerHTML}
   </div>`;
+
 }
 
 /**
@@ -73,14 +82,14 @@ function removeTicketFromFormerList() {
 function editTicket(ticketId, listId) {
   actTicketId = ticketId;
   actListId = listId;
-  //console.log(actTicketId, ' ', actListId);
+  console.log('Aktuelle Ticket-ID ',actTicketId, 'Aktuelle Ticket-Liste ', actListId);
   document.getElementById('ticket_title').value = document.getElementById(`title${ticketId}`).innerHTML;
   document.getElementById('ticket_description').value = document.getElementById(`description${ticketId}`).innerHTML;
   document.getElementById('ticket_created_at').value = switchYearAndDayOfDate(document.getElementById(`createdat${ticketId}`).innerHTML, '-');
   document.getElementById('ticket_created_at').disabled = true;
   document.getElementById('ticket_duedate').value = switchYearAndDayOfDate(document.getElementById(`duedate${ticketId}`).innerHTML, '-');
   document.getElementById('ticket_list').selectedIndex = listId - 1;
-  document.getElementById('ticket_list').disabled = true;
+  document.getElementById('ticket_list').disabled = false;
   selectListboxItemByText('ticket_prio', document.getElementById(`prio${ticketId}`).innerHTML);
   selectUsersInForm(ticketId);
   openTicket();
@@ -275,20 +284,23 @@ function createTicket(){
 /**
  * Updates a Ticket in HTML
  */
-function updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,usersName){
-  document.getElementById(`title${ticketId}`).innerHTML=title;
-  document.getElementById(`description${ticketId}`).innerHTML=description;
-  document.getElementById(`createdat${ticketId}`).innerHTML=switchYearAndDayOfDate(createdat,'-');
-  document.getElementById(`duedate${ticketId}`).innerHTML=switchYearAndDayOfDate(duedate,'-');
-  document.getElementById(`prio${ticketId}`).innerHTML=prio;
-  document.getElementById(`tickettouser${ticketId}`).innerHTML='';
-  for(i=0;i<usersId.length;i++){
-    let id = `tickettouser${ticketId}-${usersId[i]}`;
-    document.getElementById(`tickettouser${ticketId}`).innerHTML+=`
-    <span id="${id}" class="colortext">${usersName[i]}</span>`;
+function updateTicket(taskToRenderHTML){
+  document.getElementById(`title${taskToRenderHTML['id']}`).innerHTML=taskToRenderHTML['ticket_title'] ;
+  document.getElementById(`description${taskToRenderHTML['id']}`).innerHTML=taskToRenderHTML['ticket_description'] ;
+  document.getElementById(`createdat${taskToRenderHTML['id']}`).innerHTML=switchYearAndDayOfDate(taskToRenderHTML['ticket_created_at'],'-');
+  document.getElementById(`duedate${taskToRenderHTML['id']}`).innerHTML=switchYearAndDayOfDate(taskToRenderHTML['ticket_duedate'],'-');
+  document.getElementById(`prio${taskToRenderHTML['id']}`).innerHTML=taskToRenderHTML['ticket_prio'];
+  document.getElementById(`tickettouser${taskToRenderHTML['id']}`).innerHTML='';
+  for(i=0;i<taskToRenderHTML['ticket_to_user'].length;i++){
+    let id = `tickettouser${taskToRenderHTML['id']}-${taskToRenderHTML['ticket_to_user'][i].id}`;
+    document.getElementById(`tickettouser${taskToRenderHTML['id']}`).innerHTML+=`
+    <span id="${id}" class="colortext">${taskToRenderHTML['ticket_to_user'][i].username}</span>`;
   }
-
 }
+
+
+
+
 
 function collectTicketData(){
   ticketId=actTicketId;
@@ -301,7 +313,7 @@ function collectTicketData(){
   //console.log('Created_at ',document.getElementById('ticket_created_at').value);
   duedate=document.getElementById('ticket_duedate').value;
   //console.log('DueDate ',document.getElementById('ticket_duedate').value);
-  //console.log('Listen-Nummer-ID ',actListId);
+  console.log('Listen-Nummer-ID ',actListId);
   //console.log('Listen-Nummer-Wert ',getValueOfSelectedIteminDropDownField('ticket_list'));
   //console.log('Prio-ID ',document.getElementById('ticket_prio').value);
   prio=getValueOfSelectedIteminDropDownField('ticket_prio');
@@ -334,7 +346,7 @@ function collectTicketData(){
     "ticket_created_at": document.getElementById('ticket_created_at').value,
     "ticket_description": document.getElementById('ticket_description').value,
     "ticket_duedate": document.getElementById('ticket_duedate').value,
-    "ticket_list": actListId,
+    "ticket_list": document.getElementById('ticket_list').value,
     "ticket_prio": getValueOfSelectedIteminDropDownField('ticket_prio'),
     "ticket_title": document.getElementById('ticket_title').value,
     "ticket_to_user": tickettouserHTML
@@ -361,11 +373,35 @@ async function saveTicket() {
     renderTask(taskToRenderHTML);
     renderUsersOfTask(taskToRenderHTML);
   }
-  else{
-    updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,usersName);
+  else if (actListId != taskToRenderHTML['ticket_list'])
+  {
+    //updateTicket(ticketId,title,description,createdat,duedate,prio,usersId,usersName);
+    updateTicket(taskToRenderHTML);
     //console.log('PUT','/tickets/',task);
+
     let updateTicketAtServer = await sendRequest('PUT','/tickets/', task);
+    console.log('HIERRRRRRRRRRRRRRRRRRR',taskToRenderHTML['ticket_list'])
+
+    currentDraggedElement = document.getElementById(taskToRenderHTML['id']);
+    parentElementofDraggedElement = currentDraggedElement.parentNode;
+     console.log('Element mit der id: ',taskToRenderHTML['id'],' wird gerade gezogen!');
+     console.log('Wurzel ist Element mit id: ',parentElementofDraggedElement.id);
+     console.log('Vorherige Liste war ',actListId);
+     console.log('Dorthin solls gehen ',taskToRenderHTML['ticket_list'], containerIDs[document.getElementById('ticket_list').value-1]);
+     console.log('Curr Dragged Ele ',document.getElementById(taskToRenderHTML['id']));
+     currentDraggedElement = document.getElementById(taskToRenderHTML['id']);
+     
+     placeTicketInAnotherList(containerIDs[document.getElementById('ticket_list').value-1],taskToRenderHTML['ticket_list']);
+     removeTicketFromFormerList();
+     //renderTask(jsonFromServer[i]);
+     //renderUsersOfTask(jsonFromServer[i]);
+     
+    //if(actListId != task['ticket_list']){moveTo(taskToRenderHTML['ticket_list'], containerIDs[document.getElementById('ticket_list').value-1]);}
     //console.log(updateTicketAtServer);
+  }
+  else{
+    updateTicket(taskToRenderHTML);
+    let updateTicketAtServer = await sendRequest('PUT','/tickets/', task);
   }
     closeTicket();
 }
@@ -424,7 +460,7 @@ document.getElementById(containerId).innerHTML+=`
   <span>Users: 
     <span id="tickettouser${ticketId}" class="colortext"></span>
   </span>
-  <div class="ticket-edit" onclick="editTicket('${ticketId}',${listId})"><img  src="../../../static/img/edit16.png"></div>
+  <div id="editTicket${ticketId}"><div class="ticket-edit" onclick="editTicket('${ticketId}',${listId})"><img  src="../../../static/img/edit16.png"></div></div>
   <div class="ticket-delete" onclick="deleteTicket(${ticketId})"><img  src="../../../static/img/delete16.png"></div>
 </div>
 `;
@@ -463,11 +499,13 @@ function renderUsers(usersFromServer){
  */
 async function sendRequest(method, url, task) {
   console.log(method,' ', url,' Task: ', task);
-  let fd = getDataFromMessageForm(task);
+  let fd = getDataFromMessageForm(task).fd;
+  let hds = getDataFromMessageForm(task).hds;
+
 
   try {
     showLoadingAnimation();
-    return await waitingForServerResponse(method,url,fd,task);
+    return await waitingForServerResponse(method,url,fd,hds,task);
   }
   catch (e) {
     console.log('Fehler   ',e);
@@ -481,7 +519,8 @@ async function sendRequest(method, url, task) {
  */
 function getDataFromMessageForm(task) {
   let fd = new FormData();
-  fd.append('csrfmiddlewaretoken', 'bba75e9f47dc83ccea62aee1904a78136837a184');
+  let hds = new Headers();
+  hds.append('Authorization', 'Token bba75e9f47dc83ccea62aee1904a78136837a184');
 
   if(task['id'] !== undefined){fd.append('id', task['id'])};
   if(task['ticket_title'] !== undefined){fd.append('ticket_title', task['ticket_title'])};
@@ -492,7 +531,7 @@ function getDataFromMessageForm(task) {
   if(task['ticket_prio'] !== undefined){fd.append('ticket_prio', task['ticket_prio'])};
   if(task['ticket_to_user'] !== undefined){fd.append('ticket_to_user', task['ticket_to_user'])};
   
-  return fd;
+  return {fd,hds};
 }
 
 /**
@@ -500,17 +539,17 @@ function getDataFromMessageForm(task) {
  * @param {Object} fd Form-Data-Object
  * @returns a JSON
  */
-async function waitingForServerResponse(method,url,fd,task) {
+async function waitingForServerResponse(method,url,fd,hds,task) {
     let response;
 
   if(method=='GET'){
     response = await fetch(`${url}`, {method: method});
   }
   else if(method=='POST'){
-    response = await fetch(`${url}`, {method: method, body: fd});
+    response = await fetch(`${url}`, {method: method, body: fd, headers: hds});
   }
   else{
-    response = await fetch(`${url}${task['id']}/`, {method: method, body: fd});
+    response = await fetch(`${url}${task['id']}/`, {method: method, body: fd, headers: hds,});
   }
 
   let json = await response.json();
@@ -518,28 +557,36 @@ async function waitingForServerResponse(method,url,fd,task) {
   return json;
 }
 
+async function getToken(){
+  let fd = new FormData();
+  fd.append('username', 'tullrich');
+  fd.append('password', 'tullrich');
+  receivedToken = await fetch(`/get-token/`, {method: 'POST', body: fd});
+  console.log(receivedToken);
+}
+
 /**
  * Shows Loading Animation
  */
 function showLoadingAnimation() {
-  document.getElementById('spinner').classList.remove('d-none');
+  document.getElementById('spinner').classList.add('d-flex');
 }
 
 /**
  * Removes Loading-Animation
  */
 function removeLoadingAnimation() {
-  document.getElementById('spinner').classList.add('d-none');
+  document.getElementById('spinner').classList.remove('d-flex');
 }
 
 /**
  * Shows OK-Message in the header
  */
 function showOkMessage(){
-  document.getElementById('error').classList.remove('d-none');
-  document.getElementById('ok').classList.remove('d-none');
+  // document.getElementById('error').classList.add('d-none');
+  // document.getElementById('ok').classList.remove('d-none');
     setTimeout(() => {
-      document.getElementById('ok').classList.add('d-none');
+      // document.getElementById('ok').classList.add('d-none');
   }, 1000);
 }
 
@@ -547,8 +594,8 @@ function showOkMessage(){
  * Shows Error-Message in the header
  */
 function showErrorMessage(){
-  document.getElementById('error').classList.remove('d-none');
-  document.getElementById('ok').classList.add('d-none');
+  // document.getElementById('error').classList.remove('d-none');
+  // document.getElementById('ok').classList.add('d-none');
 }
 
 /**

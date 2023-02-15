@@ -22,6 +22,7 @@ from Board.views import UserAPI, TicketAPI, TicketAPIDetail #viewset is in our B
 from rest_framework.urlpatterns import format_suffix_patterns
 from django.conf.urls.static import static
 from KanbanBoard import settings
+from rest_framework.authtoken import views
 
 # To register a View under a URL
 router = routers.DefaultRouter()
@@ -43,5 +44,7 @@ urlpatterns = [
     #path('', include(router.urls)), #For access to all registered router-urls
 ] + static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
 
-
+urlpatterns += [
+    path('get-token/', views.obtain_auth_token)
+]
 

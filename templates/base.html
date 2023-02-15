@@ -29,23 +29,6 @@
       {% endif %}
     </div>
 
-    <!-- Spinner while Loading -->
-    <div class="header-loading">
-        <!-- Spinner while Loading -->
-        <div id="spinner" class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active spinner d-none"></div>
-        <!-- ErrorField if something went wrong -->
-        <div id="error" class="error d-none">
-          <img src="{% static 'img/error.png' %}">
-          <span class="redtext">Error</span>
-        </div>
-        <!-- OK-Field if everthing fine -->
-        <div id="ok" class="error d-none">
-          <img src="{% static 'img/ok.png' %}">
-          <span class="greentext">OK</span> 
-        </div>
-    </div>
-    
-
     <!-- Menu -->
     <nav class="base-navigation-menu">
         <a class="base-navigation-link" href="/board/">Board</a>
@@ -54,6 +37,23 @@
         <a class="base-navigation-link" href="/logout/">Logout</a>
     </nav>
    </div>
+
+
+    <!-- Spinner while Loading -->
+  <div class="header-loading">
+      <!-- Spinner while Loading -->
+      <div id="spinner" class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active spinner"></div>
+      <!-- ErrorField if something went wrong -->
+      <div id="error" class="error d-none">
+        <img src="{% static 'img/error.png' %}">
+        <span class="redtext">Error</span>
+      </div>
+      <!-- OK-Field if everthing fine -->
+      <div id="ok" class="ok d-none">
+        <img src="{% static 'img/ok.png' %}">
+        <span class="greentext">OK</span> 
+      </div>
+  </div>
 
 
     <!-- Templates -->
