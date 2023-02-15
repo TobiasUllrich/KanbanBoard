@@ -24,13 +24,7 @@ from django.conf.urls.static import static
 from KanbanBoard import settings
 from rest_framework.authtoken import views
 
-# To register a View under a URL
-router = routers.DefaultRouter()
-#router.register(r'users', UserViewSet) #To make the UserViewSet accessible under the URL http://127.0.0.1:8000/users/
-#router.register(r'lists', ListViewSet) #To make the BoardViewSet accessible under the URL http://127.0.0.1:8000/lists/
-#router.register(r'board', TicketViewSet) #To make the TicketViewSet accessible under the URL http://127.0.0.1:8000/board/
-
-
+# APIs
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', UserAPI.as_view()),
@@ -41,7 +35,6 @@ urlpatterns = [
     path('login/', login_view),
     path('logout/', logout_view),
     path('', board_view),
-    #path('', include(router.urls)), #For access to all registered router-urls
 ] + static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
 
 urlpatterns += [

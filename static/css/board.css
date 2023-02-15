@@ -104,7 +104,6 @@ margin-left:10px;
     position:relative;
     display:flex;
     flex-direction:column;
-    text-align:unset;
     border: 1px solid black;
     border-radius:10px;
     width:100%;

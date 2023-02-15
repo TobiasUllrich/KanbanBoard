@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, permissions, authentication, status #Um die Viewsets des REST-Frameworks benutzen zu können
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
 import Board.utils
 
 class UserAPI(APIView):
