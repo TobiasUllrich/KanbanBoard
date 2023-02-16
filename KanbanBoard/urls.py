@@ -15,11 +15,9 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include #include for Django-REST-Framework
-from rest_framework import routers #for routing with Django-REST-Framework
+from django.urls import path
 from Board.views import register_view, login_view, logout_view, board_view
-from Board.views import UserAPI, TicketAPI, TicketAPIDetail #viewset is in our Board-App
-from rest_framework.urlpatterns import format_suffix_patterns
+from Board.views import UserAPI, TicketAPI, TicketAPIDetail
 from django.conf.urls.static import static
 from KanbanBoard import settings
 from rest_framework.authtoken import views
