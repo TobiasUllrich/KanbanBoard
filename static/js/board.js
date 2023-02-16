@@ -520,7 +520,7 @@ async function waitingForServerResponse(method,url,fd,hds,task) {
     response = await fetch(`${url}`, {method: method, body: fd, headers: hds});
   }
   else{
-    response = await fetch(`${url}${task['id']}/`, {method: method, body: fd, headers: hds,});
+    response = await fetch(`${url}${task['id']}/`, {method: method, body: fd, headers: hds});
   }
 
   let json = await response.json();
@@ -535,7 +535,10 @@ async function getToken(){
   let fd = new FormData();
   fd.append('username', 'tullrich');
   fd.append('password', 'tullrich');
-  receivedToken = await fetch(`/get-token/`, {method: 'POST', body: fd});
+  let hds = new Headers();
+  hds.append('Authorization', 'Token bba75e9f47dc83ccea62aee1904a78136837a184');
+
+  receivedToken = await fetch(`/get-token/`, {method: 'POST', body: fd, headers: hds});
   console.log(receivedToken);
 }
 
