@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from .models import Ticket
 class Functions():
 
     def getUserObjectsAsArray(request):
@@ -15,3 +16,10 @@ class Functions():
          return related_user_models
         else:
          return []
+
+    def test_get_required_fields(self):
+       required_fields = []
+       for field in Ticket._meta.fields:
+            if not field.blank:
+                required_fields.append(field.name)
+       return print(required_fields) 

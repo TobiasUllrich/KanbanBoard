@@ -1,6 +1,6 @@
-from rest_framework import serializers #Um den Serializer des REST-Frameworks benutzen zu können
-from django.contrib.auth.models import User #Model User wird importiert
-from .models import List, Ticket #Models List & Ticket werden importiert
+from rest_framework import serializers
+from django.contrib.auth.models import User
+from .models import List, Ticket
 
 #Users-Serializer (defines the API)
 class UsersSerializer(serializers.HyperlinkedModelSerializer):
@@ -15,7 +15,6 @@ class ListsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = List
         fields = ['id','list_name']
-
 
 #Tickets-Serializer (defines the API)
 class TicketsSerializer(serializers.HyperlinkedModelSerializer):

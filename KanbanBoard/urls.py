@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from Board.views import register_view, login_view, logout_view, board_view
-from Board.views import UserAPI, TicketAPI, TicketAPIDetail
+from Board.views import UserAPI, ListAPI, TicketAPI, TicketAPIDetail
 from django.conf.urls.static import static
 from KanbanBoard import settings
 from rest_framework.authtoken import views
@@ -26,6 +26,7 @@ from rest_framework.authtoken import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', UserAPI.as_view()),
+    path('lists/', ListAPI.as_view()),
     path('tickets/', TicketAPI.as_view()),
     path('tickets/<int:pk>/', TicketAPIDetail.as_view()),
     path('board/', board_view),

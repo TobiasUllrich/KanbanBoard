@@ -533,13 +533,12 @@ async function waitingForServerResponse(method,url,fd,hds,task) {
  */
 async function getToken(){
   let fd = new FormData();
-  fd.append('username', 'tullrich');
-  fd.append('password', 'tullrich');
-  let hds = new Headers();
-  hds.append('Authorization', 'Token bba75e9f47dc83ccea62aee1904a78136837a184');
-
-  receivedToken = await fetch(`/get-token/`, {method: 'POST', body: fd, headers: hds});
-  console.log(receivedToken);
+  fd.append('username', 'toll');
+  fd.append('password', 'toll');
+  fd.append('csrfmiddlewaretoken', token);
+  receivedToken = await fetch(`/get-token/`, {method: 'POST', body: fd});
+  let data = await receivedToken.json();
+  console.log(data.token);
 }
 
 /**

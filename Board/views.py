@@ -1,20 +1,14 @@
-from django.shortcuts import render, redirect
-from django.core import serializers #Um den Serializer von Django benutzen zu können
-from django.contrib.auth import authenticate, login, logout #Für den Login & Logout
-from django.contrib.auth.decorators import login_required #Für Login
-from django.http import HttpResponseRedirect, JsonResponse, Http404 #Zum Weiterleiten
-
-from .serializers import UsersSerializer, ListsSerializer, TicketsSerializer #Um den Serializer aus serializers.py benutzen zu können
-from django.http import HttpResponse #Um das HttpResponseObjekt nutzen zu können
-from django.contrib.auth.models import User #Model User wird importiert
-from .models import List, Ticket, TicketToUser #Models Board & Tickets werden importiert
-import datetime #Um Datum umzuwandeln
-
+from django.shortcuts import render
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect, JsonResponse, Http404
+from .serializers import UsersSerializer, ListsSerializer, TicketsSerializer
+from django.contrib.auth.models import User
+from .models import List, Ticket
 from rest_framework.response import Response
-from rest_framework import viewsets, permissions, authentication, status #Um die Viewsets des REST-Frameworks benutzen zu können
+from rest_framework import viewsets, permissions, authentication, status
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
-from rest_framework.authtoken.views import ObtainAuthToken
 import Board.utils
 
 class UserAPI(APIView):
@@ -38,15 +32,35 @@ class UserAPI(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ListAPI(APIView):
+    """
+    API endpoint that allows lists to be viewed or edited.
+    """
+    permission_classes = [permissions.AllowAny]
+    authentication_classes =[authentication.TokenAuthentication]
 
+    def get(self, request, format=None):
+        print('GET SOLLTE PERFORMED WERDEN ')
+        lists = List.objects.all()
+        serializer = ListsSerializer(lists, many=True)
+        return Response(serializer.data)
+
+    def create(self, request): #POST
+        serializer = ListsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        print('SERIALIZERRRRR',serializer.errors)        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TicketAPI(APIView):
     """
     List all tickets, or create a new ticket.
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    #permission_classes = [permissions.AllowAny]
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.AllowAny]
     authentication_classes =[authentication.TokenAuthentication]
 
     def get(self, request, format=None):
@@ -59,14 +73,17 @@ class TicketAPI(APIView):
         print('POST SOLLTE PERFORMED WERDEN ')
         print('INPUT ',request.data)
         serializer = TicketsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
-        print('VALID ',serializer.is_valid())
         if serializer.is_valid():
             ticket = serializer.save()  
             related_user_models = Board.utils.Functions.getUserObjectsAsArray(request)
             ticket.ticket_to_user.set(related_user_models)
             print('OUTPUT ',serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+         print('SERIALIZERRRRR',serializer.errors)          
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class TicketAPIDetail(APIView):
     """
@@ -110,9 +127,6 @@ class TicketAPIDetail(APIView):
         ticket.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-
-
 @login_required(login_url='/login/') #board is only accessible if logged in, otherwise you will get redirected to login
 def board_view(request):
  """
@@ -120,7 +134,6 @@ def board_view(request):
  """
  return render(request, 'board/board.html')
  
-
 def register_view(request):
  """
   This is a view to register the user. It generates a 500 Server Error if user alreasy exists
@@ -128,9 +141,8 @@ def register_view(request):
  if request.method == 'POST' and request.POST.get('password1') == request.POST.get('password2'):
    username=request.POST.get('username')
    password1=request.POST.get('password1')
-   createduser = User.objects.create_user(username=username,password=password1) #User is created -> Error if user exists
-   createduser = User.objects.filter(username=createduser) #Filters the created user -> Error if user exists
-   return JsonResponse({"Registered": True}) #returns JSON, without key
+   User.objects.create_user(username=username,password=password1) #User is created -> Error if user exists
+   return JsonResponse({"Registered": True})
  return render(request, 'register/register.html') #GET-Request
 
 def login_view(request):
@@ -143,8 +155,6 @@ def login_view(request):
            #User authenticated/registered (username & password are correct)
            login(request,user) #Logs in the User
            token = Token.objects.get_or_create(user=user)
-           print('TOKENNNNNNNNNNNNNNNN ', token)
-           print('TOKEN vom User-Objekt ', user.auth_token.key)
            return JsonResponse({"LoggedIn": True, "RedirectTo": '/board/'})
        else: 
            #User not authenticated/registered (username or password is not correct)
