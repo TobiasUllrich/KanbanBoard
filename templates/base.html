@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <title>KanbanBoard</title>
     
+
         <!-- Material Lite Design -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
         <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
@@ -39,22 +42,25 @@
    </div>
 
 
-    <!-- Spinner while Loading -->
+ {% if request.user.is_authenticated %}
+  <!-- Spinner while Loading -->
   <div class="header-loading">
-      <!-- Spinner while Loading -->
-      <div id="spinner" class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active spinner"></div>
-      <!-- ErrorField if something went wrong -->
-      <div id="error" class="error d-none">
-        <img src="{% static 'img/error.png' %}">
-        <span class="redtext">Error</span>
-      </div>
-      <!-- OK-Field if everthing fine -->
-      <div id="ok" class="ok d-none">
-        <img src="{% static 'img/ok.png' %}">
-        <span class="greentext">OK</span> 
-      </div>
+    <!-- Spinner while Loading -->
+    <div id="spinner" class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active spinner"></div>
+    <!-- ErrorField if something went wrong -->
+    <div id="error" class="error d-none">
+      <img src="{% static 'img/error.png' %}">
+      <span class="redtext">Error</span>
+    </div>
+    <!-- OK-Field if everthing fine -->
+    <div id="ok" class="ok d-none">
+      <img src="{% static 'img/ok.png' %}">
+      <span class="greentext">OK</span> 
+    </div>
   </div>
+ {% else %}
 
+ {% endif %}
 
     <!-- Templates -->
     <div class="page-content">

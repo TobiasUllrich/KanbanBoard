@@ -6,7 +6,7 @@ from .serializers import UsersSerializer, ListsSerializer, TicketsSerializer
 from django.contrib.auth.models import User
 from .models import List, Ticket
 from rest_framework.response import Response
-from rest_framework import viewsets, permissions, authentication, status
+from rest_framework import permissions, authentication, status
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 import Board.utils
@@ -15,18 +15,17 @@ class UserAPI(APIView):
     """
     List all users, or create a new user.
     """
-    permission_classes = [permissions.AllowAny]
+    #permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     authentication_classes =[authentication.TokenAuthentication]
 
-    def get(self, request, format=None):
-        print('GET SOLLTE PERFORMED WERDEN ')
+    def get(self, request, format=None): #GET
         tickets = User.objects.all()
         serializer = UsersSerializer(tickets, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
-        print('POST SOLLTE PERFORMED WERDEN ')
-        serializer = UsersSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
+    def post(self, request, format=None): #POST
+        serializer = UsersSerializer(data=request.data, partial=True) #Important!
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -36,61 +35,50 @@ class ListAPI(APIView):
     """
     API endpoint that allows lists to be viewed or edited.
     """
-    permission_classes = [permissions.AllowAny]
+    #permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     authentication_classes =[authentication.TokenAuthentication]
 
-    def get(self, request, format=None):
-        print('GET SOLLTE PERFORMED WERDEN ')
+    def get(self, request, format=None): #GET
         lists = List.objects.all()
         serializer = ListsSerializer(lists, many=True)
         return Response(serializer.data)
 
-    def create(self, request): #POST
-        serializer = ListsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
+    def post(self, request): #POST
+        serializer = ListsSerializer(data=request.data, partial=True) #Important!
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        print('SERIALIZERRRRR',serializer.errors)        
+            return Response(serializer.data, status=status.HTTP_201_CREATED)   
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class TicketAPI(APIView):
     """
     List all tickets, or create a new ticket.
     """
-    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    permission_classes = [permissions.AllowAny]
+    #permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     authentication_classes =[authentication.TokenAuthentication]
 
-    def get(self, request, format=None):
-        print('GET SOLLTE PERFORMED WERDEN ')
+    def get(self, request, format=None): #GET
         tickets = Ticket.objects.all()
         serializer = TicketsSerializer(tickets, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
-        print('POST SOLLTE PERFORMED WERDEN ')
-        print('INPUT ',request.data)
-        serializer = TicketsSerializer(data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
+    def post(self, request, format=None): #POST
+        serializer = TicketsSerializer(data=request.data, partial=True) #Important!
         if serializer.is_valid():
-            ticket = serializer.save()  
-            related_user_models = Board.utils.Functions.getUserObjectsAsArray(request)
-            ticket.ticket_to_user.set(related_user_models)
-            print('OUTPUT ',serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-         print('SERIALIZERRRRR',serializer.errors)          
+         ticket = serializer.save()  
+         related_user_models = Board.utils.Functions.getUserObjectsAsArray(request)
+         ticket.ticket_to_user.set(related_user_models)
+         return Response(serializer.data, status=status.HTTP_201_CREATED)        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 class TicketAPIDetail(APIView):
     """
     Retrieve, update or delete a ticket instance.
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     #permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     authentication_classes =[authentication.TokenAuthentication]
     
     def get_object(self, pk):
@@ -99,31 +87,23 @@ class TicketAPIDetail(APIView):
         except Ticket.DoesNotExist:
             raise Http404
 
-    def get(self, request, pk, format=None):
-     print('GET-DETAIL SOLLTE PERFORMED WERDEN ')
+    def get(self, request, pk, format=None): #GET
      snippet = self.get_object(pk)
      serializer = TicketsSerializer(snippet)
      return Response(serializer.data)
 
     def put(self, request, pk, format=None): #PUT
-     print('PUT SOLLTE PERFORMED WERDEN ')
      ticket = self.get_object(pk)
-     print('PUT Ticket-To-USER ',ticket.ticket_to_user.all())
-     serializer = TicketsSerializer(ticket, data=request.data, partial=True) #Wichtig weil man sonst alle Felder mitschicken muss!!!!!!
+     serializer = TicketsSerializer(ticket, data=request.data, partial=True) #Important!
      if serializer.is_valid():
             ticket = serializer.save()  
             related_user_models = Board.utils.Functions.getUserObjectsAsArray(request)
-            print('USERMODELS ',related_user_models)
             ticket.ticket_to_user.set(related_user_models)
-
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        print('DELETE SOLLTE PERFORMED WERDEN ')
-        print('INPUT ',request.data)
+    def delete(self, request, pk, format=None): #DELETE
         ticket = self.get_object(pk)
-        print('TODELETE ',ticket)
         ticket.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

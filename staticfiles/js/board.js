@@ -1,9 +1,11 @@
 loadDataForHTML(); //When the HTML-Page is loaded
+getToken(); //When the HTML-Page is loaded
 let containerIDs = ['todo','inprogress','awaitingfeedback','done']; //Corresponding Container IDs for List IDs
 let currentDraggedElement; //Saves the currently dragged HTML-Element
 let parentElementofDraggedElement; //Saves the parent of the currently dragged HTML-Element
 let actTicketId; //Saves the id of the currently opened ticket
 let actListId; //Saves the id of the list of the currently opened ticket
+let tokenSaved; //Saves the token for further requests to the server
 
 /**
  * Allows dropping of Elements over div-containers
@@ -479,6 +481,7 @@ async function sendRequest(method, url, task) {
     return await waitingForServerResponse(method,url,fd,hds,task);
   }
   catch (e) {
+    
     console.log('Fehler   ',e);
     showOperationFailed();
   }
@@ -523,22 +526,23 @@ async function waitingForServerResponse(method,url,fd,hds,task) {
     response = await fetch(`${url}${task['id']}/`, {method: method, body: fd, headers: hds});
   }
 
-  let json = await response.json();
-  showOperationSuccessful();
-  return json;
+    let json = await response.json();
+    showOperationSuccessful();
+    return json;
 }
 
 /**
- * Get Token for username with password
+ * Get Token for POST-, PUT- and DELETE-Requests via username & password
  */
 async function getToken(){
   let fd = new FormData();
-  fd.append('username', 'toll');
-  fd.append('password', 'toll');
+  fd.append('username', 'tullrich');
+  fd.append('password', 'tullrich');
   fd.append('csrfmiddlewaretoken', token);
   receivedToken = await fetch(`/get-token/`, {method: 'POST', body: fd});
   let data = await receivedToken.json();
   console.log(data.token);
+  tokenSaved=data.token;
 }
 
 /**

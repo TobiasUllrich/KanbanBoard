@@ -1,9 +1,11 @@
 loadDataForHTML(); //When the HTML-Page is loaded
+getToken(); //When the HTML-Page is loaded
 let containerIDs = ['todo','inprogress','awaitingfeedback','done']; //Corresponding Container IDs for List IDs
 let currentDraggedElement; //Saves the currently dragged HTML-Element
 let parentElementofDraggedElement; //Saves the parent of the currently dragged HTML-Element
 let actTicketId; //Saves the id of the currently opened ticket
 let actListId; //Saves the id of the list of the currently opened ticket
+let tokenSaved; //Saves the token for further requests to the server
 
 /**
  * Allows dropping of Elements over div-containers
@@ -401,7 +403,6 @@ async function loadDataForHTML(){
  * @param {JSON} jsonFromServer 
  */
 function renderTickets(jsonFromServer){
-  console.log(jsonFromServer);
   for(i=0;i<jsonFromServer.length;i++){
     renderTicket(jsonFromServer[i]);
     renderUsersOfTicket(jsonFromServer[i]);
@@ -449,7 +450,6 @@ for(j=0;j<ticketToUser.length;j++){
 }
 
 function renderUsers(usersFromServer){
-  console.log(usersFromServer);
   for(j=0;j<usersFromServer.length;j++){
     document.getElementById('ticket_to_user').innerHTML+=`
     <li class="mdl-list__item">
@@ -470,7 +470,7 @@ function renderUsers(usersFromServer){
  * Sends a Message to the chat
  */
 async function sendRequest(method, url, task) {
-  console.log(method,' ', url,' Task: ', task);
+  //console.log(method,' ', url,' Task: ', task);
   let fd = getDataFromMessageForm(task).fd;
   let hds = getDataFromMessageForm(task).hds;
 
@@ -479,7 +479,7 @@ async function sendRequest(method, url, task) {
     return await waitingForServerResponse(method,url,fd,hds,task);
   }
   catch (e) {
-    console.log('Fehler   ',e);
+    console.log('Error: ',e);
     showOperationFailed();
   }
 }
@@ -523,22 +523,22 @@ async function waitingForServerResponse(method,url,fd,hds,task) {
     response = await fetch(`${url}${task['id']}/`, {method: method, body: fd, headers: hds});
   }
 
-  let json = await response.json();
-  showOperationSuccessful();
-  return json;
+    let json = await response.json();
+    showOperationSuccessful();
+    return json;
 }
 
 /**
- * Get Token for username with password
+ * Get Token for POST-, PUT- and DELETE-Requests via username & password
  */
 async function getToken(){
   let fd = new FormData();
-  fd.append('username', 'toll');
-  fd.append('password', 'toll');
+  fd.append('username', 'tullrich');
+  fd.append('password', 'tullrich');
   fd.append('csrfmiddlewaretoken', token);
   receivedToken = await fetch(`/get-token/`, {method: 'POST', body: fd});
   let data = await receivedToken.json();
-  console.log(data.token);
+  tokenSaved=data.token;
 }
 
 /**
