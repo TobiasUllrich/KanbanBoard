@@ -52,7 +52,7 @@ class TestPostList(APITestCase):
    TestAuth.setUpAuthentication(self)
    data = {'id':'','list_name':'Another List'}
    response = self.client.post('/lists/', data)
-   self.assertEqual(response.status_code, 201)
+   self.assertEqual(response.status_code, 201) #Additionally Test: Is there one List after creation?
 
 # Get a Ticket
 class TestGetTicket(APITestCase):
@@ -74,7 +74,7 @@ class TestPostTicket(APITestCase):
    TestAuth.setUpAuthentication(self)
    data = {'id':'','ticket_description':'x','ticket_title':'x','ticket_duedate':'2023-02-17','ticket_prio':'w','ticket_created_at':'2023-02-17','ticket_list':'1','ticket_to_user':''}
    response = self.client.post('/tickets/', data)
-   self.assertEqual(response.status_code, 201)
+   self.assertEqual(response.status_code, 201) #Additionally Test: Is there one List after creation?
 
  def test_ticket_put(self): #PUT (directly performed after POST)
    TestPostTicket.test_ticket_post(self)

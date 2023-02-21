@@ -11,6 +11,8 @@ class Functions():
          return related_user_models
         else:
          return []
+
+         
     #Prints out the required Fields of the Ticket-model
     def test_get_required_fields(self):
        required_fields = []

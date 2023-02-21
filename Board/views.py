@@ -67,10 +67,10 @@ class TicketAPI(APIView):
     def post(self, request, format=None): #POST
         serializer = TicketsSerializer(data=request.data, partial=True) #Important!
         if serializer.is_valid():
-         ticket = serializer.save()  
-         related_user_models = Board.utils.Functions.getUserObjectsAsArray(request)
-         ticket.ticket_to_user.set(related_user_models)
-         return Response(serializer.data, status=status.HTTP_201_CREATED)        
+          ticket = serializer.save()  
+          related_user_models = Board.utils.Functions.getUserObjectsAsArray(request)
+          ticket.ticket_to_user.set(related_user_models)
+          return Response(serializer.data, status=status.HTTP_201_CREATED)        
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TicketAPIDetail(APIView):
